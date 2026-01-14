@@ -1,0 +1,908 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillGap - AI-Powered Resume Matching</title>
+    <meta name="description" content="Land your dream job with AI-powered resume matching. Upload your resume and job posting for instant compatibility analysis, gap identification, and actionable insights.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ============================================
+           SkillGap - Modern SaaS Landing Page
+           Dark Theme with Green Accents
+           ============================================ */
+
+        :root {
+            --primary: #10B981;
+            --primary-dark: #059669;
+            --primary-light: #34D399;
+            --primary-glow: rgba(16, 185, 129, 0.4);
+            
+            --bg-dark: #0A0F1A;
+            --bg-card: #111827;
+            --bg-card-hover: #1F2937;
+            --bg-input: #1F2937;
+            
+            --text-white: #FFFFFF;
+            --text-gray: #9CA3AF;
+            --text-muted: #6B7280;
+            
+            --border: #1F2937;
+            --border-light: #374151;
+            
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-full: 9999px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-white);
+            background: var(--bg-dark);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* Background Pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(16, 185, 129, 0.15), transparent),
+                radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.05), transparent 40%),
+                radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.05), transparent 40%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ========== Navigation ========== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1rem 0;
+            background: rgba(10, 15, 26, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-white);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2.5rem;
+        }
+
+        .nav-links a {
+            font-weight: 500;
+            color: var(--text-gray);
+            text-decoration: none;
+            transition: color 0.2s ease;
+            font-size: 0.9375rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-white);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .btn-login {
+            font-weight: 500;
+            color: var(--text-gray);
+            text-decoration: none;
+            transition: color 0.2s ease;
+            font-size: 0.9375rem;
+        }
+
+        .btn-login:hover {
+            color: var(--text-white);
+        }
+
+        .btn-cta {
+            background: var(--primary);
+            color: var(--bg-dark) !important;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.9375rem;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-cta:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px var(--primary-glow);
+        }
+
+        /* ========== Hero Section ========== */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 120px 0 80px;
+            z-index: 1;
+        }
+
+        .hero-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-title .highlight {
+            color: var(--primary);
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-gray);
+            max-width: 700px;
+            margin: 0 auto 1rem;
+            line-height: 1.7;
+        }
+
+        .hero-privacy {
+            font-size: 1rem;
+            color: var(--text-white);
+            font-weight: 600;
+            margin-bottom: 2.5rem;
+        }
+
+        .hero-cta {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 4rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary-large {
+            background: var(--primary);
+            color: var(--bg-dark) !important;
+            padding: 1rem 2rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary-large:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px var(--primary-glow);
+        }
+
+        .btn-primary-large svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .btn-secondary-large {
+            background: transparent;
+            color: var(--text-white) !important;
+            padding: 1rem 2rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            border: 2px solid var(--border-light);
+            cursor: pointer;
+        }
+
+        .btn-secondary-large:hover {
+            background: var(--bg-card);
+            border-color: var(--text-gray);
+        }
+
+        /* Trust Badges */
+        .trust-badges {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .trust-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-gray);
+            font-size: 0.9375rem;
+        }
+
+        .trust-badge svg {
+            width: 20px;
+            height: 20px;
+            color: var(--primary);
+        }
+
+        .trust-badge .stars {
+            color: #FBBF24;
+        }
+
+        /* ========== Features Section ========== */
+        .section {
+            position: relative;
+            z-index: 1;
+            padding: 100px 0;
+        }
+
+        .section-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 8px 16px;
+            border-radius: var(--radius-full);
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .section-subtitle {
+            font-size: 1.125rem;
+            color: var(--text-gray);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-light);
+            transform: translateY(-4px);
+        }
+
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .feature-card p {
+            color: var(--text-gray);
+            font-size: 0.9375rem;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* ========== How It Works Section ========== */
+        .how-it-works {
+            background: linear-gradient(180deg, transparent 0%, rgba(16, 185, 129, 0.03) 50%, transparent 100%);
+        }
+
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            position: relative;
+        }
+
+        .steps-container::before {
+            content: '';
+            position: absolute;
+            top: 50px;
+            left: 16.67%;
+            right: 16.67%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--border-light), var(--primary));
+            opacity: 0.3;
+        }
+
+        .step-card {
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            width: 64px;
+            height: 64px;
+            background: var(--bg-card);
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 0 auto 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-card h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .step-card p {
+            color: var(--text-gray);
+            font-size: 0.9375rem;
+            line-height: 1.6;
+        }
+
+        /* ========== FAQ Section ========== */
+        .faq-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .faq-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item:hover {
+            border-color: var(--border-light);
+        }
+
+        .faq-item h3 {
+            font-size: 1.0625rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text-white);
+        }
+
+        .faq-item p {
+            color: var(--text-gray);
+            font-size: 0.9375rem;
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        /* ========== CTA Section ========== */
+        .cta-section {
+            text-align: center;
+            padding: 120px 0;
+        }
+
+        .cta-section h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .cta-section p {
+            font-size: 1.125rem;
+            color: var(--text-gray);
+            margin-bottom: 2rem;
+        }
+
+        .cta-note {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: 1rem;
+        }
+
+        /* ========== Footer ========== */
+        .footer {
+            border-top: 1px solid var(--border);
+            padding: 4rem 0 2rem;
+        }
+
+        .footer-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr repeat(3, 1fr);
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-brand p {
+            color: var(--text-gray);
+            font-size: 0.9375rem;
+            margin-top: 1rem;
+            max-width: 300px;
+        }
+
+        .footer-col h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-white);
+            margin-bottom: 1.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .footer-col ul {
+            list-style: none;
+        }
+
+        .footer-col li {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-col a {
+            color: var(--text-gray);
+            text-decoration: none;
+            font-size: 0.9375rem;
+            transition: color 0.2s ease;
+        }
+
+        .footer-col a:hover {
+            color: var(--primary);
+        }
+
+        .footer-bottom {
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        /* ========== Responsive ========== */
+        @media (max-width: 1024px) {
+            .steps-container {
+                grid-template-columns: 1fr;
+                gap: 2.5rem;
+            }
+
+            .steps-container::before {
+                display: none;
+            }
+
+            .footer-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero {
+                padding: 100px 0 60px;
+            }
+
+            .hero-title {
+                font-size: 2.25rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .hero-cta {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn-primary-large,
+            .btn-secondary-large {
+                width: 100%;
+                max-width: 320px;
+                justify-content: center;
+            }
+
+            .trust-badges {
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .faq-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .footer-brand p {
+                margin: 1rem auto 0;
+            }
+        }
+
+        /* Smooth scroll offset for fixed nav */
+        section[id] {
+            scroll-margin-top: 100px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <span class="logo-text">SkillGap</span>
+            </a>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#faq">FAQ</a>
+            </div>
+            <div class="nav-right">
+                <a href="/app/" class="btn-login">Log In</a>
+                <a href="/app/" class="btn-cta">Get Started Free</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <h1 class="hero-title">
+                Identify Your <span class="highlight">Skill Gaps</span><br>
+                Land Your Dream Job
+            </h1>
+            <p class="hero-subtitle">
+                Upload your resume and job posting. Our AI instantly analyzes compatibility, 
+                identifies gaps, and gives you actionable insights to boost your application score.
+            </p>
+    
+            
+            <div class="hero-cta">
+                <a href="/app/" class="btn-primary-large">
+                    
+                    Analyze My Resume Free
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+                <a href="#how-it-works" class="btn-secondary-large">
+                    See How It Works
+                </a>
+            </div>
+
+            <div class="trust-badges">
+                <div class="trust-badge">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    100% Private & Secure
+                </div>
+                <div class="trust-badge">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2"/>
+                    </svg>
+                    Results in 30 Seconds
+                </div>
+                <div class="trust-badge">
+                    <span class="stars">★</span>
+                    4.9/5 from 12,000+ reviews
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="section">
+        <div class="section-container">
+            <div class="section-header">
+                <div class="section-badge">
+                    <span>✨</span>
+                    Features
+                </div>
+                <h2 class="section-title">Everything You Need to Land the Job</h2>
+                <p class="section-subtitle">
+                    Powerful AI tools designed to give you an unfair advantage in your job search
+                </p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Smart Match Scoring</h3>
+                    <p>Get an instant compatibility score showing exactly how well your resume matches the job requirements.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Gap Analysis</h3>
+                    <p>Identify missing skills, keywords, and qualifications that could be holding your application back.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Instant Results</h3>
+                    <p>No waiting around. Get comprehensive analysis in under 30 seconds with actionable insights.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Privacy First</h3>
+                    <p>Your resume is processed in memory only. We never store your personal data or documents.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📝</div>
+                    <h3>Improvement Tips</h3>
+                    <p>Receive specific, actionable recommendations to strengthen your resume for each job.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🌐</div>
+                    <h3>Any Industry</h3>
+                    <p>Works for all roles and industries—from tech to healthcare, entry-level to executive.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="section how-it-works">
+        <div class="section-container">
+            <div class="section-header">
+                <div class="section-badge">
+                    <span>🚀</span>
+                    How It Works
+                </div>
+                <h2 class="section-title">Three Steps to Your Dream Job</h2>
+                <p class="section-subtitle">
+                    Simple, fast, and effective. Start improving your applications in minutes.
+                </p>
+            </div>
+
+            <div class="steps-container">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3>Upload Your Resume</h3>
+                    <p>Drag and drop your resume in PDF or DOCX format. Your file is processed instantly and securely.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3>Add Job Description</h3>
+                    <p>Paste the job posting or upload it as an image. Our AI extracts and analyzes all requirements.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3>Get AI Analysis</h3>
+                    <p>Receive detailed match scores, gap analysis, and personalized tips to boost your chances.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="section">
+        <div class="section-container">
+            <div class="section-header">
+                <div class="section-badge">
+                    <span>❓</span>
+                    FAQ
+                </div>
+                <h2 class="section-title">Frequently Asked Questions</h2>
+            </div>
+
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <h3>Is my resume data stored or shared?</h3>
+                    <p>No. Your resume is processed entirely in memory and immediately discarded after analysis. We never store documents or share data with third parties.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>What file formats are supported?</h3>
+                    <p>We support PDF and DOCX for resumes, and PDF, DOCX, PNG, JPG for job descriptions. Files must be under 2MB for optimal processing.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>How accurate is the AI matching?</h3>
+                    <p>Our AI uses advanced language models to provide highly accurate analysis. Results should be used as guidance alongside your own judgment.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>Can I use this for any job type?</h3>
+                    <p>Absolutely! Our AI works across all industries and job levels—from tech to healthcare, entry-level to executive positions.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>Do I need to create an account?</h3>
+                    <p>Yes, you'll need to sign in with your email to access the analysis features. This helps us prevent abuse while keeping your data secure.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>Is SkillGap free to use?</h3>
+                    <p>You get 3 free analyses. Premium users have unlimited access. Upload your resume and job descriptions to get instant AI-powered gap analysis.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="section cta-section">
+        <div class="section-container">
+            <h2>Ready to Land Your Dream Job?</h2>
+            <p>Join thousands of job seekers using AI to optimize their applications</p>
+            <a href="/app/" class="btn-primary-large">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17,8 12,3 7,8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                Start Analyzing Free
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+            </a>
+            <p class="cta-note">No credit card required • 3 free analyses • No data stored</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="/" class="nav-logo">
+                        <span class="logo-text">SkillGap</span>
+                    </a>
+                    <p>AI-powered skill gap analysis to help you land your dream job faster.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Product</h4>
+                    <ul>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#how-it-works">How It Works</a></li>
+                        <li><a href="/app/">Launch App</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="#privacy">Privacy Policy</a></li>
+                        <li><a href="#terms">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 SkillGap. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Smooth Scroll Script -->
+    <script>
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

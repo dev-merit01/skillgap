@@ -1,0 +1,3542 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillGap - Smart CV Analysis</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Modern SaaS Design System */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #10B981;
+            --primary-dark: #059669;
+            --primary-light: #34D399;
+            --secondary: #0EA5E9;
+            --success: #10B981;
+            --success-light: #D1FAE5;
+            --warning: #F59E0B;
+            --warning-light: #FEF3C7;
+            --danger: #EF4444;
+            --danger-light: #FEE2E2;
+            --gray-50: #F9FAFB;
+            --gray-100: #F3F4F6;
+            --gray-200: #E5E7EB;
+            --gray-300: #D1D5DB;
+            --gray-400: #9CA3AF;
+            --gray-500: #6B7280;
+            --gray-600: #4B5563;
+            --gray-700: #374151;
+            --gray-800: #1F2937;
+            --gray-900: #111827;
+            --white: #FFFFFF;
+            --gradient-primary: linear-gradient(135deg, #10B981 0%, #059669 50%, #047857 100%);
+            --gradient-dark: linear-gradient(135deg, #1F2937 0%, #111827 100%);
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --shadow-glow: 0 0 40px rgba(16, 185, 129, 0.15);
+            --radius-sm: 6px;
+            --radius: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--gray-800);
+            background: var(--gray-50);
+            min-height: 100vh;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            text-align: center;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--gray-200);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-spinner p {
+            color: var(--gray-600);
+            font-weight: 500;
+        }
+
+        /* Animated Background */
+        .page-wrapper {
+            min-height: 100vh;
+            background: 
+                radial-gradient(ellipse at 20% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 100%, rgba(5, 150, 105, 0.08) 0%, transparent 50%),
+                var(--gray-50);
+            padding: 20px;
+            display: none;
+        }
+
+        .page-wrapper.visible {
+            display: block;
+        }
+
+        /* Navigation */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto 40px;
+            padding: 0 20px;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--gray-900);
+        }
+
+        .nav-logo {
+            width: 42px;
+            height: 42px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .nav-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px;
+            background: var(--gray-100);
+            border-radius: 100px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .user-email {
+            font-size: 0.875rem;
+            color: var(--gray-700);
+            font-weight: 500;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .sign-out-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: transparent;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius);
+            color: var(--gray-600);
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sign-out-btn:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+            background: var(--danger-light);
+        }
+
+        /* Usage Indicator */
+        .usage-indicator {
+            margin-right: 8px;
+        }
+
+        .usage-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--gray-100);
+            border-radius: 100px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--gray-600);
+        }
+
+        .usage-badge.premium {
+            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+            color: #92400E;
+        }
+
+        .usage-badge.low {
+            background: var(--warning-light);
+            color: #92400E;
+        }
+
+        .usage-badge.exhausted {
+            background: var(--danger-light);
+            color: #B91C1C;
+        }
+
+        /* Limit Reached Message */
+        .limit-reached-message {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, var(--danger-light) 0%, #FEE2E2 100%);
+            border-radius: var(--radius-lg);
+            margin-bottom: 24px;
+            border: 1px solid #FECACA;
+        }
+
+        .limit-reached-message .limit-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+
+        .limit-reached-message h3 {
+            font-size: 1.25rem;
+            color: #B91C1C;
+            margin-bottom: 8px;
+        }
+
+        .limit-reached-message p {
+            color: #991B1B;
+            font-size: 0.9375rem;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Page Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .page-header h1 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: var(--gray-900);
+            margin-bottom: 12px;
+        }
+
+        .page-header p {
+            font-size: 1.125rem;
+            color: var(--gray-600);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Analysis Card */
+        .analysis-card {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl), var(--shadow-glow);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            background: var(--gradient-dark);
+            padding: 32px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.3) 0%, transparent 40%),
+                radial-gradient(circle at 80% 20%, rgba(5, 150, 105, 0.3) 0%, transparent 40%);
+            pointer-events: none;
+        }
+
+        .card-header-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .card-icon {
+            width: 56px;
+            height: 56px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .card-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 4px;
+        }
+
+        .card-header p {
+            color: var(--gray-400);
+            font-size: 0.9375rem;
+        }
+
+        .card-body {
+            padding: 40px;
+        }
+
+        /* Form Styles */
+        .form-section {
+            margin-bottom: 32px;
+        }
+
+        .form-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 12px;
+        }
+
+        .form-label svg {
+            width: 18px;
+            height: 18px;
+            color: var(--primary);
+        }
+
+        .form-hint {
+            font-size: 0.8125rem;
+            color: var(--gray-500);
+            font-weight: 400;
+            margin-left: auto;
+        }
+
+        /* Input Method Tabs */
+        .input-method-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding: 4px;
+            background: var(--gray-100);
+            border-radius: var(--radius-md);
+        }
+
+        .method-tab {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: transparent;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--gray-600);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .method-tab:hover {
+            color: var(--gray-800);
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .method-tab.active {
+            background: var(--white);
+            color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .method-tab svg {
+            flex-shrink: 0;
+        }
+
+        .jd-method-content {
+            animation: fadeIn 0.2s ease;
+        }
+
+        .jd-method-content.hidden {
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Loading Modal */
+        .loading-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .loading-modal.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Limit Reached Modal */
+        .limit-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .limit-modal.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .limit-modal-content {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            padding: 28px;
+            text-align: left;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+            max-width: 520px;
+            width: 92%;
+        }
+
+        .limit-modal.visible .limit-modal-content {
+            transform: scale(1);
+        }
+
+        .limit-modal-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+
+        .limit-modal-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--gray-900);
+        }
+
+        .limit-modal-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 999px;
+            background: rgba(16, 185, 129, 0.12);
+            color: var(--primary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.15rem;
+        }
+
+        .limit-modal-close {
+            width: 40px;
+            height: 40px;
+            border-radius: 999px;
+            border: 1px solid var(--gray-200);
+            background: var(--white);
+            color: var(--gray-700);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .limit-modal-close:hover {
+            border-color: rgba(16, 185, 129, 0.35);
+            color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .limit-modal-body {
+            color: var(--gray-700);
+            line-height: 1.7;
+            margin-bottom: 18px;
+        }
+
+        .limit-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .limit-modal-btn {
+            border: none;
+            border-radius: var(--radius);
+            padding: 10px 14px;
+            font-weight: 700;
+            cursor: pointer;
+            background: var(--gradient-primary);
+            color: var(--white);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .limit-modal-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.25);
+        }
+
+        .loading-modal-content {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            padding: 48px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            max-width: 360px;
+            width: 90%;
+        }
+
+        .loading-modal.visible .loading-modal-content {
+            transform: scale(1);
+        }
+
+        .loading-progress-container {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 24px;
+        }
+
+        .loading-progress-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+            transform-origin: center;
+        }
+
+        .loading-progress-bg {
+            fill: none;
+            stroke: var(--gray-200);
+            stroke-width: 8;
+        }
+
+        .loading-progress-circle {
+            fill: none;
+            stroke: url(#loadingGradient);
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-dasharray: 283;
+            stroke-dashoffset: 283;
+            transition: stroke-dashoffset 0.5s ease;
+        }
+
+        .loading-checkmark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: checkPop 0.4s ease;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .loading-checkmark svg {
+            width: 28px;
+            height: 28px;
+            stroke: white;
+        }
+
+        @keyframes checkPop {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            50% { transform: translate(-50%, -50%) scale(1.2); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .loading-progress-text {
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            background: var(--white);
+            padding: 4px 12px;
+            border-radius: var(--radius-sm);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .loading-text h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin: 0 0 8px 0;
+        }
+
+        .loading-text p {
+            font-size: 0.9375rem;
+            color: var(--gray-500);
+            margin: 0;
+        }
+
+        .textarea-wrapper {
+            position: relative;
+        }
+
+        .form-textarea {
+            width: 100%;
+            min-height: 180px;
+            padding: 16px;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            font-size: 0.9375rem;
+            font-family: inherit;
+            color: var(--gray-800);
+            resize: vertical;
+            transition: all 0.2s;
+            line-height: 1.6;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        .form-textarea::placeholder {
+            color: var(--gray-400);
+        }
+
+        .char-counter {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            font-size: 0.75rem;
+            color: var(--gray-400);
+            background: var(--white);
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+        }
+
+        .char-counter.warning {
+            color: var(--warning);
+        }
+
+        .char-counter.danger {
+            color: var(--danger);
+        }
+
+        /* File Upload */
+        .file-upload-area {
+            border: 2px dashed var(--gray-300);
+            border-radius: var(--radius-md);
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--gray-50);
+        }
+
+        .file-upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(16, 185, 129, 0.02);
+        }
+
+        .file-upload-area.dragover {
+            border-color: var(--primary);
+            background: rgba(16, 185, 129, 0.05);
+            transform: scale(1.01);
+        }
+
+        .file-upload-area.has-file {
+            border-color: var(--success);
+            background: var(--success-light);
+        }
+
+        .upload-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--gray-100);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 1.75rem;
+            transition: all 0.2s;
+        }
+
+        .file-upload-area:hover .upload-icon {
+            background: rgba(16, 185, 129, 0.1);
+            transform: scale(1.05);
+        }
+
+        .file-upload-area.has-file .upload-icon {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .upload-text {
+            font-size: 1rem;
+            color: var(--gray-700);
+            margin-bottom: 8px;
+        }
+
+        .upload-text span {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .upload-hint {
+            font-size: 0.8125rem;
+            color: var(--gray-500);
+        }
+
+        .file-info {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 16px;
+            padding: 12px 20px;
+            background: var(--white);
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+        }
+
+        .file-upload-area.has-file .file-info {
+            display: flex;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        .file-size {
+            color: var(--gray-500);
+        }
+
+        .remove-file {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s;
+        }
+
+        .remove-file:hover {
+            background: var(--danger-light);
+        }
+
+        /* Submit Button */
+        .submit-section {
+            padding-top: 24px;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 18px 32px;
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 1.0625rem;
+            font-weight: 600;
+            color: var(--white);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .submit-btn:hover:not(:disabled)::before {
+            opacity: 1;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.35);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .submit-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Loading state */
+        .submit-btn.loading {
+            pointer-events: none;
+        }
+
+        .submit-btn.loading .btn-content {
+            opacity: 0;
+        }
+
+        .submit-btn .loading-spinner-btn {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: var(--white);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        .submit-btn.loading .loading-spinner-btn {
+            display: block;
+        }
+
+        /* Results Section */
+        .results-card {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            margin-bottom: 24px;
+            display: none;
+            border: 1px solid rgba(16, 185, 129, 0.1);
+        }
+
+        .results-card.visible {
+            display: block;
+            animation: resultsSlideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes resultsSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .results-header {
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A855F7 100%);
+            padding: 28px 40px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .results-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+
+        .results-header svg {
+            position: relative;
+            z-index: 1;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        .results-header h3 {
+            position: relative;
+            z-index: 1;
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--white);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .results-body {
+            padding: 48px;
+            background: linear-gradient(180deg, rgba(249, 250, 251, 0.5) 0%, var(--white) 100%);
+        }
+
+        /* Score Display */
+        .score-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 48px;
+            margin-bottom: 40px;
+            padding: 32px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.04) 0%, rgba(5, 150, 105, 0.04) 100%);
+            border-radius: var(--radius-xl);
+            border: 1px solid rgba(16, 185, 129, 0.1);
+        }
+
+        .score-ring-container {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            flex-shrink: 0;
+        }
+
+        .score-ring-svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+            filter: drop-shadow(0 4px 12px rgba(16, 185, 129, 0.25));
+        }
+
+        .score-ring-bg {
+            fill: none;
+            stroke: var(--gray-200);
+            stroke-width: 12;
+        }
+
+        .score-ring-progress {
+            fill: none;
+            stroke: url(#scoreGradient);
+            stroke-width: 12;
+            stroke-linecap: round;
+            stroke-dasharray: 440;
+            stroke-dashoffset: 440;
+            transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .score-ring-inner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 130px;
+            height: 130px;
+            background: var(--white);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(16, 185, 129, 0.1);
+        }
+
+        .score-value {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary) 0%, #8B5CF6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+
+        .score-label {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-top: 4px;
+        }
+
+        .score-details {
+            text-align: left;
+            max-width: 380px;
+        }
+
+        .score-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            border-radius: 100px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); }
+            50% { box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2); }
+        }
+
+        .score-status.excellent {
+            background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+            color: #065F46;
+            border: 1px solid #6EE7B7;
+        }
+
+        .score-status.good {
+            background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+            color: #1E40AF;
+            border: 1px solid #93C5FD;
+        }
+
+        .score-status.fair {
+            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+            color: #92400E;
+            border: 1px solid #FCD34D;
+        }
+
+        .score-status.poor {
+            background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+            color: #991B1B;
+            border: 1px solid #FCA5A5;
+        }
+
+        .score-message {
+            font-size: 1rem;
+            color: var(--gray-600);
+            line-height: 1.6;
+        }
+
+        /* Analysis Content */
+        .analysis-content {
+            font-size: 0.9375rem;
+            line-height: 1.8;
+            color: var(--gray-700);
+        }
+
+        .analysis-content h1,
+        .analysis-content h2,
+        .analysis-content h3 {
+            color: var(--gray-900);
+            margin-top: 24px;
+            margin-bottom: 12px;
+        }
+
+        .analysis-content h2 {
+            font-size: 1.25rem;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--gray-100);
+        }
+
+        .analysis-content ul,
+        .analysis-content ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        .analysis-content li {
+            margin-bottom: 8px;
+        }
+
+        .analysis-content strong {
+            color: var(--gray-800);
+        }
+
+        /* New Analysis Button - Enhanced */
+        .new-analysis-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 16px 32px;
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--white);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 32px;
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .new-analysis-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .new-analysis-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.4);
+        }
+
+        .new-analysis-btn:hover::before {
+            opacity: 1;
+        }
+
+        .new-analysis-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Error Message */
+        .error-message {
+            display: none;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px 20px;
+            background: var(--danger-light);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: var(--radius-md);
+            margin-bottom: 24px;
+        }
+
+        .error-message.visible {
+            display: flex;
+        }
+
+        .error-message svg {
+            flex-shrink: 0;
+            color: var(--danger);
+        }
+
+        .error-message p {
+            color: #991B1B;
+            font-size: 0.9375rem;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray-500);
+            font-size: 0.875rem;
+        }
+
+        /* Enhanced Analysis Sections */
+        .analysis-section {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid var(--gray-200);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .analysis-section h2 {
+            font-size: 1.15rem;
+            color: var(--gray-900);
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--gray-100);
+        }
+
+        /* ATS Score Bar */
+        .ats-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+
+        .ats-bar {
+            width: 100%;
+            height: 12px;
+            background: var(--gray-200);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .ats-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--success) 100%);
+            border-radius: 6px;
+            transition: width 1s ease-out;
+            width: 0%;
+            display: block;
+        }
+
+        /* Strengths List */
+        .strengths-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .strength-item {
+            padding: 16px;
+            background: var(--success-light);
+            border-radius: var(--radius);
+            margin-bottom: 12px;
+            border-left: 4px solid var(--success);
+        }
+
+        .strength-item strong {
+            display: block;
+            color: var(--gray-900);
+            margin-bottom: 8px;
+        }
+
+        .strength-item .evidence {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            margin-bottom: 4px;
+        }
+
+        .strength-item .impact {
+            font-size: 0.875rem;
+            color: var(--success);
+            font-weight: 500;
+        }
+
+        /* Gaps List */
+        .gaps-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .gap-item {
+            padding: 16px;
+            background: var(--gray-50);
+            border-radius: var(--radius);
+            margin-bottom: 12px;
+            border-left: 4px solid var(--gray-400);
+            position: relative;
+        }
+
+        .gap-item.critical {
+            background: #FEF2F2;
+            border-left-color: var(--danger);
+        }
+
+        .gap-item.high {
+            background: #FFF7ED;
+            border-left-color: var(--warning);
+        }
+
+        .gap-item.medium {
+            background: var(--gray-50);
+            border-left-color: var(--gray-400);
+        }
+
+        .importance-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .importance-badge.critical {
+            background: var(--danger);
+            color: white;
+        }
+
+        .importance-badge.high {
+            background: var(--warning);
+            color: white;
+        }
+
+        .importance-badge.medium {
+            background: var(--gray-400);
+            color: white;
+        }
+
+        .gap-item .recommendation {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            margin-top: 8px;
+        }
+
+        /* Skills Tags - Enhanced */
+        .skill-group {
+            margin-bottom: 24px;
+            padding: 20px;
+            background: var(--gray-50);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--gray-200);
+        }
+
+        .skill-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .skill-group.matched {
+            background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
+            border-color: #A7F3D0;
+        }
+
+        .skill-group.missing {
+            background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%);
+            border-color: #FECACA;
+        }
+
+        .skill-group.transferable {
+            background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+            border-color: #C7D2FE;
+        }
+
+        .skill-group h3 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--gray-700);
+            margin-bottom: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .skill-tag {
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            cursor: default;
+        }
+
+        .skill-tag:hover {
+            transform: translateY(-2px);
+        }
+
+        .skill-tag.matched {
+            background: var(--white);
+            color: #065F46;
+            border: 2px solid #10B981;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+        }
+
+        .skill-tag.matched:hover {
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+        }
+
+        .skill-tag.missing {
+            background: var(--white);
+            color: #991B1B;
+            border: 2px solid #EF4444;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.15);
+        }
+
+        .skill-tag.missing:hover {
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+        }
+
+        .skill-tag.transferable {
+            background: var(--white);
+            color: var(--primary-dark);
+            border: 2px solid var(--primary);
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+        }
+
+        .skill-tag.transferable:hover {
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+        }
+
+        /* Experience Grid - Enhanced */
+        .experience-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .exp-item {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, var(--white) 0%, var(--gray-50) 100%);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--gray-200);
+            transition: all 0.2s ease;
+        }
+
+        .exp-item:hover {
+            border-color: rgba(16, 185, 129, 0.3);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
+        }
+
+        .exp-item.full {
+            grid-column: 1 / -1;
+        }
+
+        .exp-item label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 6px;
+        }
+
+        /* Red Flags Section */
+        .red-flags-section {
+            background: #FFF5F5;
+            border-color: #FED7D7;
+        }
+
+        .red-flags-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .red-flags-list li {
+            padding: 10px 16px;
+            background: white;
+            border-radius: var(--radius);
+            margin-bottom: 8px;
+            border-left: 3px solid var(--danger);
+            color: #C53030;
+        }
+
+        /* Advantages Section */
+        .advantages-section {
+            background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
+            border-color: #BBF7D0;
+        }
+
+        .advantages-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .advantages-list li {
+            padding: 10px 16px;
+            background: white;
+            border-radius: var(--radius);
+            margin-bottom: 8px;
+            border-left: 3px solid var(--success);
+            color: #065F46;
+        }
+
+        /* CV Tips */
+        .tips-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .tip-item {
+            padding: 16px;
+            background: var(--gray-50);
+            border-radius: var(--radius);
+            margin-bottom: 12px;
+            position: relative;
+            padding-top: 40px;
+        }
+
+        .priority-badge {
+            position: absolute;
+            top: 12px;
+            left: 16px;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .priority-badge.high {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+
+        .priority-badge.medium {
+            background: var(--warning-light);
+            color: #B45309;
+        }
+
+        .priority-badge.low {
+            background: #E0E7FF;
+            color: var(--primary-dark);
+        }
+
+        .tip-item .impact {
+            font-size: 0.85rem;
+            color: var(--success);
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--gray-300);
+            font-weight: 500;
+        }
+
+        /* Tips List - Enhanced */
+        .tips-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .tip-item {
+            padding: 20px;
+            background: linear-gradient(135deg, var(--white) 0%, var(--gray-50) 100%);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--gray-200);
+            position: relative;
+            padding-left: 100px;
+            transition: all 0.2s ease;
+        }
+
+        .tip-item:hover {
+            border-color: rgba(16, 185, 129, 0.3);
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.1);
+            transform: translateX(4px);
+        }
+
+        .tip-item strong {
+            display: block;
+            color: var(--gray-800);
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+
+        /* Interview Questions - Enhanced */
+        .section-intro {
+            font-size: 0.9375rem;
+            color: var(--gray-600);
+            margin-bottom: 16px;
+        }
+
+        .interview-questions {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            counter-reset: question-counter;
+        }
+
+        .interview-questions li {
+            padding: 18px 18px 18px 60px;
+            background: linear-gradient(135deg, var(--white) 0%, #FAFBFF 100%);
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+            border: 1px solid var(--gray-200);
+            color: var(--gray-700);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            position: relative;
+            counter-increment: question-counter;
+            transition: all 0.2s ease;
+        }
+
+        .interview-questions li::before {
+            content: counter(question-counter);
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 28px;
+            height: 28px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            color: var(--white);
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .interview-questions li:hover {
+            border-color: rgba(16, 185, 129, 0.3);
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.1);
+            transform: translateX(4px);
+        }
+
+        .interview-questions li:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Salary Section */
+        .salary-section {
+            text-align: center;
+        }
+
+        .salary-position {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .salary-position.strong {
+            background: var(--success-light);
+            color: #065F46;
+        }
+
+        .salary-position.moderate {
+            background: var(--warning-light);
+            color: #B45309;
+        }
+
+        .salary-position.weak {
+            background: var(--danger-light);
+            color: #991B1B;
+        }
+
+        /* Narrative Section */
+        .narrative-section .narrative {
+            line-height: 1.8;
+            color: var(--gray-700);
+        }
+
+        /* ==========================================
+           ANALYSIS DASHBOARD - Modern SaaS Layout
+           ========================================== */
+        
+        .analysis-dashboard {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 28px;
+            margin-top: 32px;
+        }
+
+        @media (max-width: 1024px) {
+            .analysis-dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .analysis-main {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Analysis Hero Section */
+        .analysis-hero {
+            background: linear-gradient(135deg, #FAFBFF 0%, #F0F4FF 100%);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            border: 1px solid rgba(16, 185, 129, 0.15);
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.08);
+        }
+
+        .analysis-hero-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .analysis-hero-title h4 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin: 0;
+        }
+
+        .analysis-hero .prose {
+            color: var(--gray-600);
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+
+        .analysis-hero .prose p {
+            margin: 0;
+        }
+
+        /* Stat Grid */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            text-align: center;
+            border: 1px solid var(--gray-200);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.12);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .stat-sub {
+            font-size: 0.75rem;
+            color: var(--gray-400);
+            margin-top: 6px;
+        }
+
+        /* Badge Styles */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge.strong {
+            background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+            color: #065F46;
+            border: 1px solid #6EE7B7;
+        }
+
+        .badge.good {
+            background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+            color: #1E40AF;
+            border: 1px solid #93C5FD;
+        }
+
+        .badge.conditional {
+            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+            color: #92400E;
+            border: 1px solid #FCD34D;
+        }
+
+        .badge.weak {
+            background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+            color: #991B1B;
+            border: 1px solid #FCA5A5;
+        }
+
+        /* Accordion Styles */
+        .analysis-accordion {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--gray-200);
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s ease;
+        }
+
+        .analysis-accordion:hover {
+            border-color: rgba(16, 185, 129, 0.3);
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.1);
+        }
+
+        .analysis-accordion[open] {
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.12);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .analysis-accordion summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 24px;
+            cursor: pointer;
+            user-select: none;
+            list-style: none;
+            background: linear-gradient(135deg, var(--white) 0%, var(--gray-50) 100%);
+            transition: all 0.2s ease;
+        }
+
+        .analysis-accordion summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .analysis-accordion summary:hover {
+            background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+        }
+
+        .acc-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .acc-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-primary);
+            border-radius: var(--radius);
+            color: var(--white);
+            font-size: 1rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+        }
+
+        .acc-title h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin: 0;
+        }
+
+        .acc-title p {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+            margin: 4px 0 0 0;
+        }
+
+        .acc-chevron {
+            font-size: 1.25rem;
+            color: var(--gray-400);
+            transition: transform 0.3s ease;
+        }
+
+        .analysis-accordion[open] .acc-chevron {
+            transform: rotate(180deg);
+        }
+
+        .acc-body {
+            padding: 0 24px 24px 24px;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Sidebar */
+        .analysis-side {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .side-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            border: 1px solid var(--gray-200);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 20px;
+        }
+
+        .side-card h4 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin: 0 0 12px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .side-card .stat-value {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+        }
+
+        /* Clean List */
+        .clean-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .clean-list li {
+            padding: 16px;
+            background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
+            border-radius: var(--radius);
+            margin-bottom: 12px;
+            border-left: 4px solid var(--success);
+            transition: all 0.2s ease;
+        }
+
+        .clean-list li:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+        }
+
+        .clean-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        .clean-list li strong {
+            display: block;
+            color: var(--gray-900);
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+        }
+
+        /* Gaps List Enhanced */
+        .gaps-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .gap-item {
+            padding: 16px 16px 16px 20px;
+            background: var(--gray-50);
+            border-radius: var(--radius);
+            border-left: 4px solid var(--gray-400);
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .gap-item:hover {
+            transform: translateX(4px);
+        }
+
+        .gap-item.critical {
+            background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%);
+            border-left-color: var(--danger);
+        }
+
+        .gap-item.high {
+            background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+            border-left-color: var(--warning);
+        }
+
+        .gap-item strong {
+            display: block;
+            color: var(--gray-800);
+            font-size: 0.95rem;
+            padding-right: 80px;
+        }
+
+        .gap-item .recommendation {
+            font-size: 0.85rem;
+            color: var(--gray-600);
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--gray-300);
+        }
+
+        /* Prose */
+        .prose {
+            color: var(--gray-600);
+            line-height: 1.8;
+            font-size: 0.95rem;
+        }
+
+        .prose p {
+            margin-bottom: 14px;
+        }
+
+        .prose p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Final Recommendation */
+        .final-section {
+            text-align: center;
+            background: linear-gradient(135deg, var(--gray-800) 0%, var(--gray-900) 100%);
+            color: white;
+        }
+
+        .final-section h2 {
+            color: white;
+            border-bottom-color: var(--gray-700);
+        }
+
+        .final-recommendation {
+            display: inline-block;
+            padding: 16px 32px;
+            border-radius: var(--radius-lg);
+            font-weight: 700;
+            font-size: 1.125rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .final-recommendation.strong {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+        }
+
+        .final-recommendation.good {
+            background: linear-gradient(135deg, #3B82F6 0%, var(--primary) 100%);
+        }
+
+        .final-recommendation.conditional {
+            background: linear-gradient(135deg, var(--warning) 0%, #D97706 100%);
+        }
+
+        .final-recommendation.weak {
+            background: linear-gradient(135deg, var(--danger) 0%, #DC2626 100%);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .nav-user {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .user-info {
+                order: 1;
+            }
+
+            .sign-out-btn {
+                order: 2;
+            }
+
+            .page-header h1 {
+                font-size: 1.75rem;
+            }
+
+            .page-header p {
+                font-size: 1rem;
+            }
+
+            .card-header {
+                padding: 24px;
+            }
+
+            .card-header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .card-body {
+                padding: 24px;
+            }
+
+            .score-section {
+                flex-direction: column;
+                gap: 24px;
+            }
+
+            .score-details {
+                text-align: center;
+            }
+
+            .results-header {
+                padding: 20px 24px;
+            }
+
+            .results-body {
+                padding: 24px;
+            }
+
+            .user-email {
+                max-width: 150px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-wrapper {
+                padding: 12px;
+            }
+
+            .results-header {
+                padding: 18px 20px;
+            }
+
+            .results-body {
+                padding: 16px;
+            }
+
+            .score-circle {
+                width: 112px;
+                height: 112px;
+            }
+
+            .score-inner {
+                width: 86px;
+                height: 86px;
+            }
+
+            .score-value {
+                font-size: 2.05rem;
+            }
+
+            .analysis-section {
+                padding: 16px;
+            }
+
+            .experience-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .skill-tags {
+                gap: 6px;
+            }
+
+            .skill-tag {
+                padding: 5px 10px;
+                font-size: 0.75rem;
+            }
+
+            .file-upload-area {
+                padding: 24px;
+            }
+
+            .upload-icon {
+                width: 48px;
+                height: 48px;
+                font-size: 1.25rem;
+            }
+
+            .form-textarea {
+                min-height: 140px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Verifying authentication...</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="page-wrapper" id="pageWrapper">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <a href="/" class="nav-brand">
+                <span class="nav-title">SkillGap</span>
+            </a>
+            <div class="nav-user">
+                <div id="usageIndicator" class="usage-indicator">
+                    <span class="usage-badge">Loading...</span>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <span class="user-email" id="userEmail">Loading...</span>
+                </div>
+                <button class="sign-out-btn" onclick="handleSignOut()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16,17 21,12 16,7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    Sign Out
+                </button>
+            </div>
+        </nav>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Identify Your Skill Gaps</h1>
+            <p>Upload your CV and paste the job description to discover exactly what skills you need to land your dream job</p>
+        </div>
+
+        <!-- Main Container -->
+        <div class="main-container">
+            <!-- Loading Modal -->
+            <div class="loading-modal" id="loadingModal">
+                <div class="loading-modal-content">
+                    <div class="loading-progress-container">
+                        <svg class="loading-progress-svg" viewBox="0 0 100 100">
+                            <defs>
+                                <linearGradient id="loadingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#6366F1"/>
+                                    <stop offset="50%" stop-color="#8B5CF6"/>
+                                    <stop offset="100%" stop-color="#10B981"/>
+                                </linearGradient>
+                            </defs>
+                            <circle class="loading-progress-bg" cx="50" cy="50" r="45"/>
+                            <circle class="loading-progress-circle" id="progressCircle" cx="50" cy="50" r="45"/>
+                        </svg>
+                        <div class="loading-checkmark" id="loadingCheckmark" style="display: none;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20,6 9,17 4,12"/>
+                            </svg>
+                        </div>
+                        <span class="loading-progress-text" id="progressText">0%</span>
+                    </div>
+                    <div class="loading-text">
+                        <h3 id="loadingStage">Processing...</h3>
+                        <p id="loadingMessage">Please wait while we process your request</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Limit Modal (Free Trial) -->
+            <div class="limit-modal" id="limitModal" aria-hidden="true">
+                <div class="limit-modal-content" role="dialog" aria-modal="true" aria-labelledby="limitModalTitle">
+                    <div class="limit-modal-header">
+                        <div class="limit-modal-title" id="limitModalTitle">
+                            <span class="limit-modal-icon">ℹ️</span>
+                            Free trial limit reached
+                        </div>
+                        <button class="limit-modal-close" id="limitModalClose" type="button" aria-label="Close">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 6L6 18"></path>
+                                <path d="M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="limit-modal-body" id="limitModalBody"></div>
+                    <div class="limit-modal-actions">
+                        <button class="limit-modal-btn" id="limitModalOk" type="button">OK</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <div class="error-message" id="errorMessage">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="15" y1="9" x2="9" y2="15"/>
+                    <line x1="9" y1="9" x2="15" y2="15"/>
+                </svg>
+                <p id="errorText">An error occurred. Please try again.</p>
+            </div>
+
+            <!-- Analysis Form Card -->
+            <div class="analysis-card" id="analysisCard">
+                <div class="card-header">
+                    <div class="card-header-content">
+                        <div class="card-icon">📄</div>
+                        <div>
+                            <h2>CV Analysis</h2>
+                            <p>Get detailed insights on your job match compatibility</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form id="analysisForm">
+                        <!-- Job Description -->
+                        <div class="form-section">
+                            <label class="form-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                    <polyline points="14,2 14,8 20,8"/>
+                                    <line x1="16" y1="13" x2="8" y2="13"/>
+                                    <line x1="16" y1="17" x2="8" y2="17"/>
+                                    <polyline points="10,9 9,9 8,9"/>
+                                </svg>
+                                Job Description
+                            </label>
+                            
+                            <!-- Input Method Tabs -->
+                            <div class="input-method-tabs">
+                                <button type="button" class="method-tab active" data-method="paste" onclick="switchJDMethod('paste')">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                                    </svg>
+                                    Paste Text
+                                </button>
+                                <button type="button" class="method-tab" data-method="upload" onclick="switchJDMethod('upload')">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                        <polyline points="17,8 12,3 7,8"/>
+                                        <line x1="12" y1="3" x2="12" y2="15"/>
+                                    </svg>
+                                    Upload File
+                                </button>
+                            </div>
+
+                            <!-- Paste Method -->
+                            <div class="jd-method-content" id="jdPasteMethod">
+                                <div class="textarea-wrapper">
+                                    <textarea 
+                                        class="form-textarea" 
+                                        id="jobDescription" 
+                                        name="job_description"
+                                        placeholder="Paste the job description here...
+
+Include the job title, required skills, qualifications, responsibilities, and any other relevant details from the job posting."
+                                        maxlength="{{ max_job_length|default:10000 }}"
+                                    ></textarea>
+                                    <span class="char-counter" id="charCounter">0 / {{ max_job_length|default:10000 }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Upload Method -->
+                            <div class="jd-method-content hidden" id="jdUploadMethod">
+                                <div class="file-upload-area" id="jdUploadArea">
+                                    <div class="upload-icon">📄</div>
+                                    <p class="upload-text"><span>Click to upload</span> or drag and drop</p>
+                                    <p class="upload-hint">Supported: PDF, DOCX, PNG, JPG, JPEG • Max 2MB</p>
+                                    <div class="file-info">
+                                        <span class="file-name" id="jdFileName"></span>
+                                        <span class="file-size" id="jdFileSize"></span>
+                                        <button type="button" class="remove-file" onclick="removeJDFile(event)">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <line x1="18" y1="6" x2="6" y2="18"/>
+                                                <line x1="6" y1="6" x2="18" y2="18"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <input type="file" id="jdFile" name="jd_file" accept=".pdf,.docx,.doc,.png,.jpg,.jpeg" hidden>
+                                </div>
+                                <!-- Hidden field to store extracted text -->
+                                <input type="hidden" id="extractedText" value="">
+                            </div>
+                        </div>
+
+                        <!-- CV Upload -->
+                        <div class="form-section">
+                            <label class="form-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="17,8 12,3 7,8"/>
+                                    <line x1="12" y1="3" x2="12" y2="15"/>
+                                </svg>
+                                Upload CV
+                                <span class="form-hint">{{ allowed_extensions|default:"PDF, DOCX" }} • Max {{ max_file_size_mb|default:5 }}MB</span>
+                            </label>
+                            <div class="file-upload-area" id="uploadArea">
+                                <div class="upload-icon">📎</div>
+                                <p class="upload-text"><span>Click to upload</span> or drag and drop</p>
+                                <p class="upload-hint">Supported formats: {{ allowed_extensions|default:"PDF, DOCX" }}</p>
+                                <div class="file-info">
+                                    <span class="file-name" id="fileName"></span>
+                                    <span class="file-size" id="fileSize"></span>
+                                    <button type="button" class="remove-file" onclick="removeFile(event)">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="18" y1="6" x2="6" y2="18"/>
+                                            <line x1="6" y1="6" x2="18" y2="18"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <input type="file" id="cvFile" name="cv_file" accept=".pdf,.docx,.doc" hidden required>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="form-section submit-section">
+                            <button type="submit" class="submit-btn" id="submitBtn">
+                                <span class="btn-content">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                                    </svg>
+                                    Analyze Match
+                                </span>
+                                <div class="loading-spinner-btn"></div>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Results Card -->
+            <div class="results-card" id="resultsCard">
+                <div class="results-header">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22,4 12,14.01 9,11.01"/>
+                    </svg>
+                    <h3>Analysis Results</h3>
+                </div>
+                <div class="results-body">
+                    <div class="score-section">
+                        <div class="score-ring-container">
+                            <svg class="score-ring-svg" viewBox="0 0 160 160">
+                                <defs>
+                                    <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#6366F1"/>
+                                        <stop offset="50%" stop-color="#8B5CF6"/>
+                                        <stop offset="100%" stop-color="#10B981"/>
+                                    </linearGradient>
+                                </defs>
+                                <circle class="score-ring-bg" cx="80" cy="80" r="70"/>
+                                <circle class="score-ring-progress" id="scoreRing" cx="80" cy="80" r="70"/>
+                            </svg>
+                            <div class="score-ring-inner">
+                                <span class="score-value" id="scoreValue">0%</span>
+                                <span class="score-label">Match Score</span>
+                            </div>
+                        </div>
+                        <div class="score-details">
+                            <div class="score-status" id="scoreStatus">
+                                <span id="statusText">Analyzing...</span>
+                            </div>
+                            <p class="score-message" id="scoreMessage">Your match analysis is ready.</p>
+                        </div>
+                    </div>
+                    <div class="analysis-content" id="analysisContent"></div>
+                    <button class="new-analysis-btn" onclick="startNewAnalysis()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="1,4 1,10 7,10"/>
+                            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+                        </svg>
+                        New Analysis
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>© 2025 SkillGap. Powered by AI for smarter career decisions.</p>
+        </footer>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCR0--hTXPwbw29CNjC-JkBBXrUsdCGqb4",
+            authDomain: "ai-job-matcher-90698.firebaseapp.com",
+            projectId: "ai-job-matcher-90698",
+            storageBucket: "ai-job-matcher-90698.firebasestorage.app",
+            messagingSenderId: "677178545276",
+            appId: "1:677178545276:web:668d3a4f6803ffc633e5f9",
+            measurementId: "G-PY7TS2P96L"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // DOM Elements
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const pageWrapper = document.getElementById('pageWrapper');
+        const userEmail = document.getElementById('userEmail');
+        const userAvatar = document.getElementById('userAvatar');
+        const analysisForm = document.getElementById('analysisForm');
+        const jobDescription = document.getElementById('jobDescription');
+        const charCounter = document.getElementById('charCounter');
+        const uploadArea = document.getElementById('uploadArea');
+        const cvFileInput = document.getElementById('cvFile');
+        const submitBtn = document.getElementById('submitBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+        const analysisCard = document.getElementById('analysisCard');
+        const resultsCard = document.getElementById('resultsCard');
+
+        // Global variables
+        let currentUser = null;
+        let idToken = null;
+        const maxJobLength = {{ max_job_length|default:10000 }};
+
+        // Check authentication state
+        // Firebase onAuthStateChanged fires immediately with null, then again with user if logged in
+        // We need to wait a moment for Firebase to check persisted auth
+        let authResolved = false;
+        
+        // Wait for Firebase Auth to fully initialize
+        auth.onAuthStateChanged(async (user) => {
+            // Skip if we've already handled auth
+            if (authResolved) return;
+            
+            // If user is null, wait a bit for Firebase to check persistence
+            // This handles the case where onAuthStateChanged fires with null first
+            if (user === null) {
+                // Wait 1.5 seconds for Firebase to load persisted session
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // Check auth state again
+                const currentAuthUser = auth.currentUser;
+                if (currentAuthUser) {
+                    // User was found after waiting
+                    user = currentAuthUser;
+                } else {
+                    // Still no user - redirect to login
+                    authResolved = true;
+                    window.location.href = '/login/';
+                    return;
+                }
+            }
+            
+            authResolved = true;
+            
+            // Check if email is verified
+            if (!user.emailVerified) {
+                // Sign out unverified user and redirect to login
+                await auth.signOut();
+                window.location.href = '/login/?verify=1';
+                return;
+            }
+            
+            // User is authenticated and verified
+            currentUser = user;
+            try {
+                idToken = await user.getIdToken();
+                
+                // Update UI with user info
+                userEmail.textContent = user.email;
+                userAvatar.textContent = user.email.charAt(0).toUpperCase();
+                
+                // Check usage limit
+                await checkUsageLimit();
+                
+                // Show main content
+                loadingOverlay.classList.add('hidden');
+                pageWrapper.classList.add('visible');
+            } catch (error) {
+                console.error('Error getting token:', error);
+                window.location.href = '/login/';
+            }
+        });
+
+        // Frontend-only usage limit (per browser/device)
+        const TRIAL_ENDED_MESSAGE = "You’ve used your 3 free analyses. Our team is working on giving you more trials soon. Stay tuned!";
+        const LOCAL_ANALYSIS_LIMIT = 3;
+        const LOCAL_USAGE_KEY = 'skillgap_free_analysis_count_v1';
+        const LOCAL_USAGE_COOKIE = 'sg_free_analysis_count';
+
+        function getCookie(name) {
+            const cookieStr = document.cookie || '';
+            const parts = cookieStr.split(';').map(p => p.trim());
+            for (const part of parts) {
+                if (part.startsWith(name + '=')) {
+                    return decodeURIComponent(part.substring(name.length + 1));
+                }
+            }
+            return null;
+        }
+
+        function setCookie(name, value, days) {
+            const maxAge = days ? (days * 24 * 60 * 60) : (365 * 24 * 60 * 60);
+            document.cookie = `${name}=${encodeURIComponent(value)}; Max-Age=${maxAge}; Path=/; SameSite=Lax`;
+        }
+
+        function getLocalUsageCount() {
+            try {
+                const raw = localStorage.getItem(LOCAL_USAGE_KEY);
+                const parsed = Number.parseInt(raw ?? '', 10);
+                if (Number.isFinite(parsed) && parsed >= 0) return parsed;
+            } catch (e) {
+                // localStorage might be blocked; fall back to cookies
+            }
+
+            const cookieVal = getCookie(LOCAL_USAGE_COOKIE);
+            const parsedCookie = Number.parseInt(cookieVal ?? '', 10);
+            if (Number.isFinite(parsedCookie) && parsedCookie >= 0) return parsedCookie;
+
+            return 0;
+        }
+
+        function setLocalUsageCount(count) {
+            const safeCount = Math.max(0, Number(count) || 0);
+            try {
+                localStorage.setItem(LOCAL_USAGE_KEY, String(safeCount));
+            } catch (e) {
+                // ignore
+            }
+            setCookie(LOCAL_USAGE_COOKIE, String(safeCount), 365);
+        }
+
+        function incrementLocalUsageCount() {
+            const next = getLocalUsageCount() + 1;
+            setLocalUsageCount(next);
+            return next;
+        }
+
+        // Usage tracking variables (frontend-only)
+        let userUsage = { count: 0, limit: LOCAL_ANALYSIS_LIMIT, remaining: LOCAL_ANALYSIS_LIMIT, can_analyze: true };
+
+        function refreshLocalUsage() {
+            const count = getLocalUsageCount();
+            const remaining = Math.max(0, LOCAL_ANALYSIS_LIMIT - count);
+            userUsage = {
+                count,
+                limit: LOCAL_ANALYSIS_LIMIT,
+                remaining,
+                can_analyze: count < LOCAL_ANALYSIS_LIMIT,
+            };
+            updateUsageDisplay();
+            if (!userUsage.can_analyze) {
+                showTrialEndedMessage(TRIAL_ENDED_MESSAGE);
+            }
+        }
+
+        // Check usage limit (now local-only)
+        async function checkUsageLimit() {
+            refreshLocalUsage();
+        }
+
+        // Update usage display in the UI
+        function updateUsageDisplay() {
+            const usageIndicator = document.getElementById('usageIndicator');
+            if (!usageIndicator) return;
+
+            const remaining = userUsage.remaining;
+            const badgeClass = remaining === 0 ? 'exhausted' : (remaining === 1 ? 'low' : '');
+            usageIndicator.innerHTML = `<span class="usage-badge ${badgeClass}">${remaining} analyses remaining</span>`;
+        }
+
+        function showLimitModal(message) {
+            const modal = document.getElementById('limitModal');
+            const body = document.getElementById('limitModalBody');
+            if (!modal || !body) return;
+            body.textContent = message || TRIAL_ENDED_MESSAGE;
+            modal.classList.add('visible');
+            modal.setAttribute('aria-hidden', 'false');
+        }
+
+        function hideLimitModal() {
+            const modal = document.getElementById('limitModal');
+            if (!modal) return;
+            modal.classList.remove('visible');
+            modal.setAttribute('aria-hidden', 'true');
+        }
+
+        (function initLimitModalHandlers() {
+            const modal = document.getElementById('limitModal');
+            const closeBtn = document.getElementById('limitModalClose');
+            const okBtn = document.getElementById('limitModalOk');
+            if (closeBtn) closeBtn.addEventListener('click', hideLimitModal);
+            if (okBtn) okBtn.addEventListener('click', hideLimitModal);
+            if (modal) {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) hideLimitModal();
+                });
+            }
+        })();
+
+        function showTrialEndedMessage(message) {
+            const cardBody = document.querySelector('.card-body');
+            if (!cardBody) return;
+
+            const existing = document.querySelector('.limit-reached-message');
+            if (existing) {
+                const p = existing.querySelector('p');
+                if (p && message) p.textContent = message;
+                return;
+            }
+
+            const limitMsg = document.createElement('div');
+            limitMsg.className = 'limit-reached-message';
+            limitMsg.innerHTML = `
+                <div class="limit-icon">ℹ️</div>
+                <h3>Free Trial Used</h3>
+                <p>${message || TRIAL_ENDED_MESSAGE}</p>
+            `;
+
+            cardBody.insertBefore(limitMsg, cardBody.firstChild);
+        }
+
+        // Handle sign out
+        function handleSignOut() {
+            auth.signOut().then(() => {
+                window.location.href = '/login/';
+            }).catch((error) => {
+                console.error('Sign out error:', error);
+            });
+        }
+
+        // JD Input Method handling
+        let currentJDMethod = 'paste';
+        const jdUploadArea = document.getElementById('jdUploadArea');
+        const jdFileInput = document.getElementById('jdFile');
+        let jdSelectedFile = null;
+        
+        function switchJDMethod(method) {
+            currentJDMethod = method;
+            
+            // Update tab active states
+            document.querySelectorAll('.method-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.method === method);
+            });
+            
+            // Show/hide content
+            document.getElementById('jdPasteMethod').classList.toggle('hidden', method !== 'paste');
+            document.getElementById('jdUploadMethod').classList.toggle('hidden', method !== 'upload');
+            
+            // Clear the other method's input when switching
+            if (method === 'paste') {
+                jdFileInput.value = '';
+                jdSelectedFile = null;
+                jdUploadArea.classList.remove('has-file');
+            } else {
+                jobDescription.value = '';
+                charCounter.textContent = `0 / ${maxJobLength}`;
+            }
+        }
+
+        // JD File upload handling
+        jdUploadArea.addEventListener('click', () => jdFileInput.click());
+        
+        jdUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            jdUploadArea.classList.add('dragover');
+        });
+        
+        jdUploadArea.addEventListener('dragleave', () => {
+            jdUploadArea.classList.remove('dragover');
+        });
+        
+        jdUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            jdUploadArea.classList.remove('dragover');
+            
+            if (e.dataTransfer.files.length) {
+                handleJDFile(e.dataTransfer.files[0]);
+            }
+        });
+        
+        jdFileInput.addEventListener('change', () => {
+            if (jdFileInput.files.length) {
+                handleJDFile(jdFileInput.files[0]);
+            }
+        });
+
+        async function handleJDFile(file) {
+            const allowedTypes = ['.pdf', '.docx', '.doc', '.png', '.jpg', '.jpeg'];
+            const fileExt = '.' + file.name.split('.').pop().toLowerCase();
+            
+            if (!allowedTypes.includes(fileExt)) {
+                showError('Please upload a PDF, DOCX, or image file (PNG, JPG, JPEG).');
+                return;
+            }
+            
+            const maxSize = 2 * 1024 * 1024; // 2MB for JD files
+            if (file.size > maxSize) {
+                showError('Job description file must be less than 2MB.');
+                return;
+            }
+            
+            // Update UI
+            document.getElementById('jdFileName').textContent = file.name;
+            document.getElementById('jdFileSize').textContent = formatFileSize(file.size);
+            jdUploadArea.classList.add('has-file');
+
+            // Store selected file
+            jdSelectedFile = file;
+            
+            // Auto-extract text from the uploaded file
+            await extractJDText();
+        }
+
+        function removeJDFile(event) {
+            event.stopPropagation();
+            jdFileInput.value = '';
+            jdSelectedFile = null;
+            jdUploadArea.classList.remove('has-file');
+            
+            // Clear extracted text
+            document.getElementById('extractedText').value = '';
+        }
+
+        // Extract text from uploaded JD file (called automatically)
+        async function extractJDText() {
+            if (!jdSelectedFile) {
+                return;
+            }
+            
+            // Show loading modal
+            showLoadingModal('Extracting Text', 'Reading your job description file...');
+            
+            // Simulate progress for extraction
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 85) progress = 85;
+                updateLoadingProgress(progress, 'Extracting text from document...');
+            }, 300);
+            
+            try {
+                // Refresh token
+                idToken = await currentUser.getIdToken(true);
+                
+                const formData = new FormData();
+                formData.append('jd_file', jdSelectedFile);
+                
+                const response = await fetch('/extract-jd/', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${idToken}`
+                    },
+                    body: formData
+                });
+                
+                clearInterval(progressInterval);
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to extract text from file.');
+                }
+                
+                // Store extracted text
+                document.getElementById('extractedText').value = data.extracted_text;
+                
+                // Show completion
+                updateLoadingProgress(100, 'Text extracted successfully!');
+                showLoadingComplete(`Extracted ${data.char_count} characters`);
+                
+            } catch (error) {
+                clearInterval(progressInterval);
+                hideLoadingModal();
+                console.error('Extract error:', error);
+                showError(error.message);
+                
+                // Reset file state on error
+                jdFileInput.value = '';
+                jdSelectedFile = null;
+                jdUploadArea.classList.remove('has-file');
+            }
+        }
+
+        // Character counter for job description
+        jobDescription.addEventListener('input', () => {
+            const length = jobDescription.value.length;
+            charCounter.textContent = `${length} / ${maxJobLength}`;
+            
+            charCounter.classList.remove('warning', 'danger');
+            if (length > maxJobLength * 0.9) {
+                charCounter.classList.add('danger');
+            } else if (length > maxJobLength * 0.7) {
+                charCounter.classList.add('warning');
+            }
+        });
+
+        // File upload handling
+        uploadArea.addEventListener('click', () => cvFileInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            if (e.dataTransfer.files.length) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+        
+        cvFileInput.addEventListener('change', () => {
+            if (cvFileInput.files.length) {
+                handleFile(cvFileInput.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            const allowedTypes = ['.pdf', '.docx', '.doc'];
+            const fileExt = '.' + file.name.split('.').pop().toLowerCase();
+            
+            if (!allowedTypes.includes(fileExt)) {
+                showError('Please upload a PDF or DOCX file.');
+                return;
+            }
+            
+            const maxSize = {{ max_file_size_mb|default:5 }} * 1024 * 1024;
+            if (file.size > maxSize) {
+                showError(`File size must be less than {{ max_file_size_mb|default:5 }}MB.`);
+                return;
+            }
+            
+            // Update UI
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileSize').textContent = formatFileSize(file.size);
+            uploadArea.classList.add('has-file');
+            
+            // Update file input
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            cvFileInput.files = dataTransfer.files;
+        }
+
+        function removeFile(event) {
+            event.stopPropagation();
+            cvFileInput.value = '';
+            uploadArea.classList.remove('has-file');
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        function showError(message) {
+            errorText.textContent = message;
+            errorMessage.classList.add('visible');
+            setTimeout(() => {
+                errorMessage.classList.remove('visible');
+            }, 5000);
+        }
+
+        // Form submission
+        analysisForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!currentUser || !idToken) {
+                showError('Please sign in to analyze your CV.');
+                return;
+            }
+            
+            // Validate job description based on current method
+            let jdText = '';
+            if (currentJDMethod === 'paste') {
+                jdText = jobDescription.value.trim();
+                if (!jdText) {
+                    showError('Please enter a job description.');
+                    return;
+                }
+            } else {
+                // For upload mode, use extracted text (auto-extracted on upload)
+                jdText = document.getElementById('extractedText').value.trim();
+                if (!jdText) {
+                    showError('Please upload a job description file first.');
+                    return;
+                }
+                if (jdText.length < 300) {
+                    showError('Extracted text is too short. Please upload a more complete job description.');
+                    return;
+                }
+            }
+            
+            if (!cvFileInput.files.length) {
+                showError('Please upload your CV.');
+                return;
+            }
+
+            // Frontend-only free trial enforcement (per browser/device)
+            refreshLocalUsage();
+            if (!userUsage.can_analyze) {
+                showTrialEndedMessage(TRIAL_ENDED_MESSAGE);
+                showLimitModal(TRIAL_ENDED_MESSAGE);
+                return;
+            }
+            
+            // Show loading modal for analysis
+            showLoadingModal('Analyzing Match', 'Parsing your CV...');
+            errorMessage.classList.remove('visible');
+            
+            // Simulate progress for analysis stages
+            let progress = 0;
+            const stages = [
+                { percent: 20, message: 'Parsing your CV...' },
+                { percent: 40, message: 'Analyzing job requirements...' },
+                { percent: 60, message: 'Matching skills and experience...' },
+                { percent: 80, message: 'Generating insights...' },
+                { percent: 90, message: 'Finalizing analysis...' },
+            ];
+            let stageIndex = 0;
+            
+            const progressInterval = setInterval(() => {
+                if (stageIndex < stages.length) {
+                    const stage = stages[stageIndex];
+                    progress = stage.percent + Math.random() * 5;
+                    updateLoadingProgress(progress, stage.message);
+                    stageIndex++;
+                }
+            }, 800);
+            
+            try {
+                // Refresh token
+                idToken = await currentUser.getIdToken(true);
+                
+                const formData = new FormData();
+                
+                // Always send job description as text (extracted or pasted)
+                formData.append('job_description', jdText);
+                
+                formData.append('cv_file', cvFileInput.files[0]);
+                
+                const response = await fetch('/analyze/', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${idToken}`
+                    },
+                    body: formData
+                });
+                
+                clearInterval(progressInterval);
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Analysis failed. Please try again.');
+                }
+
+                // Increment local usage after a successful analysis
+                const newCount = incrementLocalUsageCount();
+                refreshLocalUsage();
+                if (newCount >= LOCAL_ANALYSIS_LIMIT) {
+                    showTrialEndedMessage(TRIAL_ENDED_MESSAGE);
+                    showLimitModal(TRIAL_ENDED_MESSAGE);
+                }
+                
+                // Show completion
+                updateLoadingProgress(100, 'Analysis complete!');
+                showLoadingComplete('Your results are ready');
+                
+                // Display results after modal closes
+                setTimeout(() => {
+                    displayResults(data);
+                }, 1600);
+                
+            } catch (error) {
+                clearInterval(progressInterval);
+                hideLoadingModal();
+                console.error('Analysis error:', error);
+                showError(error.message || 'An error occurred during analysis.');
+            }
+        });
+
+        function displayResults(data) {
+            // Extract analysis object from response
+            const analysis = data.analysis || {};
+            
+            // Get score directly from structured response
+            let score = Number(analysis.match_score);
+            let atsScore = Number(analysis.ats_compatibility_score);
+
+            if (!Number.isFinite(score)) score = 0;
+            if (!Number.isFinite(atsScore)) atsScore = 0;
+            
+            // Ensure score is within bounds
+            score = Math.max(0, Math.min(100, score));
+            atsScore = Math.max(0, Math.min(100, atsScore));
+            
+            // Update score display with SVG ring animation
+            const scoreRing = document.getElementById('scoreRing');
+            const scoreValue = document.getElementById('scoreValue');
+            const scoreStatus = document.getElementById('scoreStatus');
+            const statusText = document.getElementById('statusText');
+            const scoreMessage = document.getElementById('scoreMessage');
+            
+            // Animate the SVG ring (circumference = 2 * PI * 70 = ~440)
+            const circumference = 2 * Math.PI * 70;
+            const offset = circumference - (score / 100) * circumference;
+            
+            // Delay animation slightly for visual effect
+            setTimeout(() => {
+                scoreRing.style.strokeDashoffset = offset;
+            }, 100);
+            
+            // Animate score number counting up
+            animateValue(scoreValue, 0, score, 1500);
+            
+            // Set status based on final recommendation or score
+            const recommendation = analysis.final_recommendation || '';
+            scoreStatus.className = 'score-status';
+            
+            if (recommendation.includes('STRONG') || score >= 86) {
+                scoreStatus.classList.add('excellent');
+                statusText.textContent = '🏆 Strong Match';
+                scoreMessage.textContent = analysis.executive_summary || 'Excellent alignment with this position!';
+            } else if (recommendation.includes('GOOD') || score >= 71) {
+                scoreStatus.classList.add('good');
+                statusText.textContent = '✅ Good Match';
+                scoreMessage.textContent = analysis.executive_summary || 'Solid alignment with some areas to highlight.';
+            } else if (recommendation.includes('CONDITIONAL') || score >= 51) {
+                scoreStatus.classList.add('fair');
+                statusText.textContent = '⚠️ Conditional Match';
+                scoreMessage.textContent = analysis.executive_summary || 'Some gaps identified. Review suggestions below.';
+            } else {
+                scoreStatus.classList.add('poor');
+                statusText.textContent = '📈 Needs Work';
+                scoreMessage.textContent = analysis.executive_summary || 'Consider significant CV improvements.';
+            }
+            
+            // Build comprehensive analysis HTML
+            const analysisContent = document.getElementById('analysisContent');
+            analysisContent.innerHTML = buildAnalysisHTML(analysis, atsScore);
+
+            // Animate ATS bar(s) after DOM insertion
+            requestAnimationFrame(() => {
+                document.querySelectorAll('.ats-fill[data-width]').forEach(el => {
+                    const w = Math.max(0, Math.min(100, Number(el.dataset.width) || 0));
+                    el.style.width = w + '%';
+                });
+            });
+            
+            // Show results card
+            analysisCard.style.display = 'none';
+            resultsCard.classList.add('visible');
+        }
+
+        function buildAnalysisHTML(analysis, atsScore) {
+            const escapeHtml = (value) => {
+                const s = String(value ?? '');
+                return s
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            };
+
+            const toPct = (value, fallback = 0) => {
+                const n = Number(value);
+                if (!Number.isFinite(n)) return fallback;
+                return Math.max(0, Math.min(100, n));
+            };
+
+            const rec = String(analysis.final_recommendation || '').toUpperCase();
+            let recClass = 'weak';
+            if (rec.includes('STRONG')) recClass = 'strong';
+            else if (rec.includes('GOOD')) recClass = 'good';
+            else if (rec.includes('CONDITIONAL')) recClass = 'conditional';
+
+            const exp = analysis.experience_fit || {};
+            const edu = analysis.education_fit || {};
+            const relevance = toPct(exp.relevance_score, 0);
+            const ats = toPct(atsScore, 0);
+            const salary = String(analysis.salary_negotiation_position || '—');
+            const eduMeets = typeof edu.meets_requirements === 'boolean' ? edu.meets_requirements : null;
+
+            const accordion = (icon, title, subtitle, bodyHtml, open = false) => {
+                const safeSubtitle = escapeHtml(subtitle || '');
+                return `
+                <details class="analysis-accordion" ${open ? 'open' : ''}>
+                    <summary>
+                        <div class="acc-left">
+                            <div class="acc-icon">${escapeHtml(icon)}</div>
+                            <div class="acc-title">
+                                <h4>${escapeHtml(title)}</h4>
+                                ${safeSubtitle ? `<p>${safeSubtitle}</p>` : ''}
+                            </div>
+                        </div>
+                        <div class="acc-chevron">▾</div>
+                    </summary>
+                    <div class="acc-body">${bodyHtml}</div>
+                </details>`;
+            };
+
+            let mainHtml = '';
+
+            // Hero: executive summary + recommendation badge
+            mainHtml += `
+            <div class="analysis-hero">
+                <div class="analysis-hero-title">
+                    <h4>Executive Summary</h4>
+                    ${rec ? `<span class="badge ${recClass}">${escapeHtml(rec)}</span>` : ''}
+                </div>
+                <div class="prose">
+                    <p>${escapeHtml(analysis.executive_summary || '—')}</p>
+                </div>
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">ATS Score</div>
+                        <div class="stat-value">${ats}%</div>
+                        <div class="stat-sub">Keyword + formatting readiness</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Relevance</div>
+                        <div class="stat-value">${relevance}%</div>
+                        <div class="stat-sub">Experience alignment</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Education Fit</div>
+                        <div class="stat-value">${eduMeets === null ? '—' : (eduMeets ? 'Meets' : 'Gap')}</div>
+                        <div class="stat-sub">Requirements check</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Negotiation</div>
+                        <div class="stat-value">${escapeHtml(salary)}</div>
+                        <div class="stat-sub">Leverage estimate</div>
+                    </div>
+                </div>
+            </div>`;
+
+            // Strengths
+            if (Array.isArray(analysis.strengths) && analysis.strengths.length) {
+                const items = analysis.strengths.slice(0, 8).map(s => {
+                    if (s && typeof s === 'object') {
+                        return `
+                        <li>
+                            <strong>${escapeHtml(s.point || '')}</strong>
+                            ${s.evidence ? `<div class="stat-sub">📌 ${escapeHtml(s.evidence)}</div>` : ''}
+                            ${s.impact ? `<div class="stat-sub">💡 ${escapeHtml(s.impact)}</div>` : ''}
+                        </li>`;
+                    }
+                    return `<li><strong>${escapeHtml(s)}</strong></li>`;
+                }).join('');
+
+                mainHtml += accordion('✓', 'Key Strengths', `${analysis.strengths.length} highlights found`, `<ul class="clean-list">${items}</ul>`, true);
+            }
+
+            // Critical gaps
+            if (Array.isArray(analysis.critical_gaps) && analysis.critical_gaps.length) {
+                const items = analysis.critical_gaps.slice(0, 10).map(g => {
+                    if (g && typeof g === 'object') {
+                        const imp = String(g.importance || 'medium').toLowerCase();
+                        const impClass = imp === 'critical' ? 'critical' : imp === 'high' ? 'high' : 'medium';
+                        return `
+                        <li class="gap-item ${impClass}">
+                            <strong>${escapeHtml(g.gap || '')}</strong>
+                            <span class="importance-badge ${impClass}">${escapeHtml(imp)}</span>
+                            ${g.recommendation ? `<div class="recommendation">💡 ${escapeHtml(g.recommendation)}</div>` : ''}
+                        </li>`;
+                    }
+                    return `<li>${escapeHtml(g)}</li>`;
+                }).join('');
+
+                mainHtml += accordion('!', 'Critical Gaps', 'What to fix to raise the score fastest', `<div class="gaps-list">${items}</div>`, true);
+            }
+
+            // Skills
+            if (analysis.skill_analysis) {
+                const skills = analysis.skill_analysis;
+                const tagRow = (title, arr, cls) => {
+                    if (!Array.isArray(arr) || !arr.length) return '';
+                    return `
+                    <div class="skill-group ${cls}">
+                        <h3>${escapeHtml(title)}</h3>
+                        <div class="skill-tags">${arr.map(x => `<span class="skill-tag ${cls}">${escapeHtml(x)}</span>`).join('')}</div>
+                    </div>`;
+                };
+
+                const body = `
+                    ${tagRow('Matched Technical Skills', skills.matched_hard_skills, 'matched')}
+                    ${tagRow('Matched Soft Skills', skills.matched_soft_skills, 'matched')}
+                    ${tagRow('Missing Technical Skills', skills.missing_hard_skills, 'missing')}
+                    ${tagRow('Missing Soft Skills', skills.missing_soft_skills, 'missing')}
+                    ${tagRow('Transferable Skills', skills.transferable_skills, 'transferable')}
+                `;
+
+                mainHtml += accordion('★', 'Skills Fit', 'Clear matched vs missing skills', body, false);
+            }
+
+            // Experience
+            if (analysis.experience_fit) {
+                const body = `
+                    <div class="experience-grid">
+                        <div class="exp-item"><label>Required</label> ${escapeHtml(exp.years_required || 'Not specified')}</div>
+                        <div class="exp-item"><label>Apparent</label> ${escapeHtml(exp.years_apparent || 'Unknown')}</div>
+                        <div class="exp-item"><label>Relevance</label> ${relevance}%</div>
+                        <div class="exp-item full"><label>Industry Fit</label> ${escapeHtml(exp.industry_alignment || 'Not assessed')}</div>
+                    </div>`;
+                mainHtml += accordion('⌁', 'Experience Fit', 'How your background maps to the role', body, false);
+            }
+
+            // Advantages + red flags
+            if (Array.isArray(analysis.competitive_advantages) && analysis.competitive_advantages.length) {
+                const body = `<ul class="clean-list">${analysis.competitive_advantages.slice(0, 10).map(a => `<li>${escapeHtml(a)}</li>`).join('')}</ul>`;
+                mainHtml += accordion('＋', 'Competitive Advantages', 'What makes you stand out', body, false);
+            }
+
+            if (Array.isArray(analysis.red_flags) && analysis.red_flags.length) {
+                const body = `<ul class="clean-list">${analysis.red_flags.slice(0, 10).map(f => `<li>${escapeHtml(f)}</li>`).join('')}</ul>`;
+                mainHtml += accordion('⚑', 'Potential Red Flags', 'Items recruiters may question', body, false);
+            }
+
+            // CV tips
+            if (Array.isArray(analysis.cv_improvement_tips) && analysis.cv_improvement_tips.length) {
+                const tips = analysis.cv_improvement_tips.slice(0, 10).map(tip => {
+                    if (tip && typeof tip === 'object') {
+                        const p = String(tip.priority || 'medium').toLowerCase();
+                        const pc = p === 'high' ? 'high' : p === 'low' ? 'low' : 'medium';
+                        return `
+                        <li class="tip-item">
+                            <span class="priority-badge ${pc}">${escapeHtml(p)}</span>
+                            <strong>${escapeHtml(tip.tip || '')}</strong>
+                            ${tip.expected_impact ? `<div class="impact">Expected Impact: ${escapeHtml(tip.expected_impact)}</div>` : ''}
+                        </li>`;
+                    }
+                    return `<li>${escapeHtml(tip)}</li>`;
+                }).join('');
+                mainHtml += accordion('✎', 'CV Improvements', 'Actionable edits that move the needle', `<ul class="tips-list">${tips}</ul>`, false);
+            }
+
+            // Interview questions
+            if (Array.isArray(analysis.interview_questions) && analysis.interview_questions.length) {
+                const body = `<ol class="interview-questions">${analysis.interview_questions.slice(0, 8).map(q => `<li>${escapeHtml(q)}</li>`).join('')}</ol>`;
+                mainHtml += accordion('?', 'Interview Prep', 'Questions to expect based on gaps', body, false);
+            }
+
+            // Narrative
+            if (analysis.detailed_narrative) {
+                let narrativeHtml = '';
+                if (Array.isArray(analysis.detailed_narrative)) {
+                    narrativeHtml = analysis.detailed_narrative
+                        .filter(Boolean)
+                        .map(p => `<p>${escapeHtml(p)}</p>`)
+                        .join('');
+                } else {
+                    narrativeHtml = String(analysis.detailed_narrative)
+                        .split('\n')
+                        .filter(Boolean)
+                        .map(p => `<p>${escapeHtml(p)}</p>`)
+                        .join('');
+                }
+                mainHtml += accordion('≡', 'Full Assessment', 'Deeper context and nuance', `<div class="prose">${narrativeHtml}</div>`, false);
+            }
+
+            // Sidebar
+            const sideHtml = `
+                <div class="analysis-side">
+                    <div class="side-card">
+                        <h4>ATS Compatibility</h4>
+                        <div class="stat-value">${ats}%</div>
+                        <div class="ats-bar" style="margin-top:10px">
+                            <div class="ats-fill" data-width="${ats}"></div>
+                        </div>
+                        <div class="stat-sub" style="margin-top:10px">Aim for 80%+ for smoother ATS screening.</div>
+                    </div>
+                    <div class="side-card">
+                        <h4>Recommendation</h4>
+                        ${rec ? `<div style="margin-bottom:10px"><span class="badge ${recClass}">${escapeHtml(rec)}</span></div>` : ''}
+                        <div class="stat-sub">Focus on the top 2 gaps and mirror the job keywords in your experience bullets.</div>
+                    </div>
+                </div>`;
+
+            return `<div class="analysis-dashboard"><div class="analysis-main">${mainHtml}</div>${sideHtml}</div>`;
+        }
+
+        function animateValue(element, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                element.textContent = Math.floor(progress * (end - start) + start) + '%';
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        function startNewAnalysis() {
+            // Reset form
+            analysisForm.reset();
+            uploadArea.classList.remove('has-file');
+            jdUploadArea.classList.remove('has-file');
+            jdSelectedFile = null;
+            charCounter.textContent = `0 / ${maxJobLength}`;
+            
+            // Reset extracted text
+            document.getElementById('extractedText').value = '';
+            
+            // Reset to paste method
+            switchJDMethod('paste');
+            
+            // Show form, hide results
+            resultsCard.classList.remove('visible');
+            analysisCard.style.display = 'block';
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // Loading Modal Functions
+        function showLoadingModal(stage, message) {
+            const modal = document.getElementById('loadingModal');
+            const stageText = document.getElementById('loadingStage');
+            const messageText = document.getElementById('loadingMessage');
+            const progressCircle = document.getElementById('progressCircle');
+            const progressText = document.getElementById('progressText');
+            
+            stageText.textContent = stage;
+            messageText.textContent = message;
+            progressText.textContent = '0%';
+            progressCircle.style.strokeDashoffset = 283; // Full circle
+            
+            modal.classList.add('visible');
+        }
+        
+        function updateLoadingProgress(percent, message) {
+            const progressCircle = document.getElementById('progressCircle');
+            const progressText = document.getElementById('progressText');
+            const messageText = document.getElementById('loadingMessage');
+            
+            // Circle circumference = 2 * PI * 45 = ~283
+            const offset = 283 - (percent / 100) * 283;
+            progressCircle.style.strokeDashoffset = offset;
+            progressText.textContent = `${Math.round(percent)}%`;
+            if (message) messageText.textContent = message;
+        }
+        
+        function showLoadingComplete(message) {
+            const stageText = document.getElementById('loadingStage');
+            const messageText = document.getElementById('loadingMessage');
+            const progressText = document.getElementById('progressText');
+            const checkmark = document.getElementById('loadingCheckmark');
+            
+            stageText.textContent = 'Complete!';
+            messageText.textContent = message || 'Done';
+            progressText.textContent = '100%';
+            
+            // Show checkmark
+            checkmark.style.display = 'flex';
+            
+            // Auto-hide after delay
+            setTimeout(() => {
+                hideLoadingModal();
+            }, 1500);
+        }
+        
+        function hideLoadingModal() {
+            const modal = document.getElementById('loadingModal');
+            const checkmark = document.getElementById('loadingCheckmark');
+            
+            modal.classList.remove('visible');
+            
+            // Reset for next use
+            setTimeout(() => {
+                checkmark.style.display = 'none';
+            }, 300);
+        }
+    </script>
+</body>
+</html>
