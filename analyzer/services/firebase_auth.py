@@ -1,12 +1,15 @@
-"""
-Firebase Authentication Service
+"""Firebase Authentication Service.
+
 Verifies Firebase ID tokens and extracts user information.
 """
+
+import base64
 import json
-import firebase_admin
-from firebase_admin import credentials, auth
-from django.conf import settings
 import logging
+
+import firebase_admin
+from firebase_admin import auth, credentials
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +21,56 @@ class FirebaseAuthService:
     """
     
     _initialized = False
+
+    @staticmethod
+    def _parse_service_account_json(raw_value: str) -> dict:
+        """Parse service account JSON from an env var.
+
+        Supports:
+        - Raw JSON object text
+        - JSON-string-wrapped JSON (requires 2x json.loads)
+        - Base64-encoded JSON
+
+        Also normalizes `private_key` so it contains real newlines.
+        """
+        if not raw_value or not isinstance(raw_value, str):
+            raise ValueError("FIREBASE_SERVICE_ACCOUNT_JSON is empty")
+
+        candidate: str = raw_value.strip()
+
+        # Optional base64 support (handy when dashboards escape characters).
+        if not candidate.startswith("{"):
+            try:
+                decoded = base64.b64decode(candidate, validate=True).decode("utf-8")
+                if decoded.lstrip().startswith("{"):
+                    candidate = decoded.strip()
+            except Exception:
+                pass
+
+        parsed = None
+        for _ in range(2):
+            parsed = json.loads(candidate)
+            if isinstance(parsed, dict):
+                break
+            if isinstance(parsed, str):
+                candidate = parsed.strip()
+                continue
+            raise ValueError("FIREBASE_SERVICE_ACCOUNT_JSON must decode to a JSON object")
+
+        if not isinstance(parsed, dict):
+            raise ValueError("FIREBASE_SERVICE_ACCOUNT_JSON did not decode to an object")
+
+        private_key = parsed.get("private_key")
+        if isinstance(private_key, str):
+            # Fix the common case where the key is double-escaped and starts with '\\'.
+            # PEM parsing expects actual newlines.
+            normalized = private_key.replace("\\r\\n", "\n").replace("\\n", "\n")
+            # If there are still literal backslashes, replace the escaped newlines again.
+            if "\\n" in normalized:
+                normalized = normalized.replace("\\n", "\n")
+            parsed["private_key"] = normalized
+
+        return parsed
     
     @classmethod
     def initialize(cls):
@@ -30,7 +83,7 @@ class FirebaseAuthService:
         
         try:
             if getattr(settings, 'FIREBASE_SERVICE_ACCOUNT_JSON', None):
-                service_account = json.loads(settings.FIREBASE_SERVICE_ACCOUNT_JSON)
+                service_account = cls._parse_service_account_json(settings.FIREBASE_SERVICE_ACCOUNT_JSON)
                 cred = credentials.Certificate(service_account)
                 firebase_admin.initialize_app(cred)
             elif settings.FIREBASE_CREDENTIALS_PATH:
