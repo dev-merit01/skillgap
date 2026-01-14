@@ -29,6 +29,9 @@ db.sqlite3-journal
 *-firebase-adminsdk-*.json
 firebase-adminsdk-*.json
 
+# Local secrets
+firebase_env_value.txt
+
 # IDE
 .vscode/
 .idea/
