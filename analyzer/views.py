@@ -76,6 +76,8 @@ def app(request):
     context = {
         'max_file_size_mb': settings.MAX_UPLOAD_SIZE / (1024 * 1024),
         'allowed_extensions': ', '.join(settings.ALLOWED_FILE_EXTENSIONS),
+        'allowed_extensions_list': settings.ALLOWED_FILE_EXTENSIONS,
+        'image_ocr_enabled': bool(getattr(settings, 'OPENAI_API_KEY', None)),
         'max_job_length': settings.MAX_JOB_DESCRIPTION_LENGTH,
     }
     return render(request, 'analyzer/home.html', context)
@@ -187,7 +189,13 @@ def analyze(request):
         # Step 4: Parse CV (in memory)
         try:
             cv_text = CVParserService.parse_cv(cv_file, cv_file.name)
-            logger.info(f"Parsed CV for: {user_info['email']}")
+            logger.info(f"Parsed CV for: {user_info['email']} ({len(cv_text)} chars)")
+            
+            # Validate CV text is substantial enough
+            if len(cv_text.strip()) < 50:
+                return JsonResponse({
+                    'error': 'CV text is too short or empty. Please ensure the CV file contains readable text. If you uploaded an image, check that the text extraction worked properly.'
+                }, status=400)
         except ValueError as e:
             return JsonResponse({'error': str(e)}, status=400)
         
@@ -222,4 +230,90 @@ def analyze(request):
         }, status=500)
 
 
+@require_http_methods(["GET"])
+def debug_info(request):
+    """
+    Debug endpoint to check Firebase and system configuration.
+    Only available in DEBUG mode.
+    """
+    if not settings.DEBUG:
+        return JsonResponse({'error': 'Not available'}, status=403)
+    
+    debug_info = {
+        'debug_mode': settings.DEBUG,
+        'firebase_auth_disabled': getattr(settings, 'FIREBASE_AUTH_DISABLED', False),
+        'firebase_credentials_path': bool(settings.FIREBASE_CREDENTIALS_PATH),
+        'firebase_project_id': bool(settings.FIREBASE_PROJECT_ID),
+        'firebase_service_account_json': bool(settings.FIREBASE_SERVICE_ACCOUNT_JSON),
+        'openai_api_key': bool(settings.OPENAI_API_KEY),
+        'allowed_hosts': settings.ALLOWED_HOSTS,
+    }
+    
+    return JsonResponse(debug_info)
 
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def test_openai_extraction(request):
+    """
+    Test OpenAI Vision API extraction on uploaded image.
+    Returns extraction details and raw text for debugging.
+    
+    Expected:
+        - Files: image_file (PNG, JPG, JPEG)
+    
+    Returns:
+        JSON with extraction status, text length, and sample
+    """
+    try:
+        # Check API key
+        if not settings.OPENAI_API_KEY:
+            return JsonResponse({
+                'error': 'OpenAI API key not configured',
+                'status': 'FAILED'
+            }, status=400)
+        
+        # Validate file
+        if 'image_file' not in request.FILES:
+            return JsonResponse({
+                'error': 'No image file uploaded',
+                'status': 'FAILED'
+            }, status=400)
+        
+        image_file = request.FILES['image_file']
+        filename = image_file.name
+        
+        # Read file content
+        file_content = image_file.read()
+        
+        # Try OpenAI extraction
+        try:
+            from analyzer.services.document_extractor import ImageOCRExtractor
+            
+            logger.info(f"Testing OpenAI extraction for: {filename}")
+            extracted_text = ImageOCRExtractor.extract(file_content, document_type="jd")
+            
+            return JsonResponse({
+                'status': 'SUCCESS',
+                'filename': filename,
+                'extracted_length': len(extracted_text),
+                'sample': extracted_text[:500],
+                'full_text': extracted_text,
+                'message': f'Successfully extracted {len(extracted_text)} characters using OpenAI Vision API'
+            })
+            
+        except Exception as e:
+            logger.error(f"OpenAI extraction test failed: {e}", exc_info=True)
+            return JsonResponse({
+                'status': 'FAILED',
+                'error': str(e),
+                'filename': filename,
+                'message': 'OpenAI extraction failed - check API key and image quality'
+            }, status=500)
+    
+    except Exception as e:
+        logger.error(f"Test endpoint error: {e}", exc_info=True)
+        return JsonResponse({
+            'status': 'FAILED',
+            'error': str(e)
+        }, status=500)

@@ -544,7 +544,7 @@
 
         .top-actions {
             display: flex;
-            justify-content: flex-end;
+            justify-content: flex-start;
             margin-bottom: 18px;
         }
 
@@ -552,9 +552,9 @@
             width: 42px;
             height: 42px;
             border-radius: 999px;
-            border: 1px solid rgba(255, 255, 255, 0.14);
-            background: rgba(255, 255, 255, 0.06);
-            color: var(--gray-300);
+            border: 1px solid var(--gray-300);
+            background: var(--gray-100);
+            color: var(--gray-600);
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -564,9 +564,9 @@
 
         .back-to-landing:hover {
             transform: translateY(-1px);
-            border-color: rgba(16, 185, 129, 0.55);
+            border-color: var(--primary);
             background: rgba(16, 185, 129, 0.10);
-            color: var(--primary-light);
+            color: var(--primary);
         }
 
         .back-to-landing svg {
@@ -779,9 +779,17 @@
             measurementId: "G-PY7TS2P96L"
         };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
+        // Initialize Firebase with error handling
+        let auth = null;
+        try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            auth = firebase.auth();
+            console.log('Firebase initialized successfully');
+        } catch (error) {
+            console.error('Firebase initialization error:', error);
+        }
 
         // DOM Elements
         const form = document.getElementById('register-form');
@@ -921,19 +929,29 @@
                 return;
             }
 
+            // Check if auth is initialized
+            if (!auth) {
+                console.error('Firebase auth not initialized');
+                showError('Authentication service is not available. Please reload the page and try again.');
+                return;
+            }
+
             // Set loading state
             submitBtn.classList.add('loading');
             submitBtn.disabled = true;
 
             try {
                 // Create user with Firebase
+                console.log('Attempting to create user:', email);
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 currentUser = userCredential.user;
+                console.log('User created successfully:', currentUser.uid);
 
                 // Update profile with name
                 await currentUser.updateProfile({
                     displayName: `${firstName} ${lastName}`
                 });
+                console.log('User profile updated');
 
                 // Send verification email with redirect to login
                 const actionCodeSettings = {
@@ -941,15 +959,19 @@
                     handleCodeInApp: false
                 };
                 await currentUser.sendEmailVerification(actionCodeSettings);
+                console.log('Verification email sent to:', email);
 
                 // Sign out the user so they can verify email first
                 await auth.signOut();
+                console.log('User signed out');
 
                 // Show success
                 showSuccess(email);
 
             } catch (error) {
                 console.error('Registration error:', error);
+                console.error('Error code:', error.code);
+                console.error('Error message:', error.message);
                 
                 let message = 'Registration failed. Please try again.';
                 
@@ -966,6 +988,11 @@
                     case 'auth/operation-not-allowed':
                         message = 'Email/password accounts are not enabled. Please contact support.';
                         break;
+                    case 'auth/network-request-failed':
+                        message = 'Network error. Please check your connection and try again.';
+                        break;
+                    default:
+                        message = error.message || 'Registration failed. Please try again.';
                 }
                 
                 showError(message);

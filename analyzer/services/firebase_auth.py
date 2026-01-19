@@ -80,6 +80,13 @@ class FirebaseAuthService:
         """
         if cls._initialized:
             return
+
+        # In local development you may not have Firebase Admin credentials.
+        # Allow an explicit settings switch to bypass token verification.
+        if getattr(settings, 'FIREBASE_AUTH_DISABLED', False):
+            cls._initialized = True
+            logger.warning('Firebase auth verification is DISABLED (FIREBASE_AUTH_DISABLED=True).')
+            return
         
         try:
             if getattr(settings, 'FIREBASE_SERVICE_ACCOUNT_JSON', None):
@@ -126,6 +133,15 @@ class FirebaseAuthService:
         """
         if not cls._initialized:
             cls.initialize()
+
+        # If auth is disabled, return a deterministic development user.
+        if getattr(settings, 'FIREBASE_AUTH_DISABLED', False):
+            return {
+                'uid': 'dev-user',
+                'email': 'dev@localhost',
+                'name': 'Developer',
+                'email_verified': True,
+            }
         
         if not id_token or not isinstance(id_token, str):
             raise ValueError("Invalid token format")

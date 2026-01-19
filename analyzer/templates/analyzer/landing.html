@@ -571,6 +571,160 @@
             font-size: 0.875rem;
         }
 
+        /* ========== Hamburger Menu ========== */
+        .hamburger-btn {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 44px;
+            height: 44px;
+            background: transparent;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius);
+            cursor: pointer;
+            padding: 8px;
+            transition: all 0.2s ease;
+            z-index: 1001;
+        }
+
+        .hamburger-btn:hover {
+            background: var(--bg-card);
+            border-color: var(--primary);
+        }
+
+        .hamburger-btn span {
+            display: block;
+            width: 20px;
+            height: 2px;
+            background: var(--text-white);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+            margin: 2px 0;
+        }
+
+        .hamburger-btn.active span:nth-child(1) {
+            transform: rotate(45deg) translate(4px, 4px);
+        }
+
+        .hamburger-btn.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger-btn.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(4px, -4px);
+        }
+
+        /* Mobile Menu Overlay */
+        .mobile-menu-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 15, 26, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 280px;
+            max-width: 85vw;
+            height: 100vh;
+            background: var(--bg-card);
+            border-left: 1px solid var(--border);
+            z-index: 1000;
+            padding: 80px 24px 32px;
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            pointer-events: none;
+        }
+
+        .mobile-menu.active {
+            right: 0;
+            pointer-events: auto;
+        }
+
+        .mobile-menu-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .mobile-menu-links a {
+            display: block;
+            padding: 14px 16px;
+            color: var(--text-gray);
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: var(--radius);
+            transition: all 0.2s ease;
+        }
+
+        .mobile-menu-links a:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-white);
+        }
+
+        .mobile-menu-cta {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .mobile-menu-cta .btn-login-mobile {
+            display: block;
+            padding: 14px 20px;
+            text-align: center;
+            color: var(--text-gray);
+            text-decoration: none;
+            font-weight: 500;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius);
+            transition: all 0.2s ease;
+        }
+
+        .mobile-menu-cta .btn-login-mobile:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .mobile-menu-cta .btn-cta-mobile {
+            display: block;
+            padding: 14px 20px;
+            text-align: center;
+            background: var(--primary);
+            color: var(--bg-dark);
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: var(--radius);
+            transition: all 0.2s ease;
+        }
+
+        .mobile-menu-cta .btn-cta-mobile:hover {
+            background: var(--primary-light);
+        }
+
         /* ========== Responsive ========== */
         @media (max-width: 1024px) {
             .steps-container {
@@ -588,12 +742,36 @@
         }
 
         @media (max-width: 768px) {
-            .nav-links {
+            .nav-links,
+            .nav-right {
                 display: none;
             }
 
+            .hamburger-btn {
+                display: flex;
+            }
+
+            .mobile-menu-overlay {
+                display: block;
+                pointer-events: none;
+            }
+            
+            .mobile-menu-overlay.active {
+                pointer-events: auto;
+            }
+            
+            .mobile-menu {
+                display: block;
+                pointer-events: none;
+            }
+            
+            .mobile-menu.active {
+                pointer-events: auto;
+            }
+
             .hero {
-                padding: 100px 0 60px;
+                padding: 120px 0 60px;
+                margin-top: 20px;
             }
 
             .hero-title {
@@ -638,6 +816,44 @@
             .footer-brand p {
                 margin: 1rem auto 0;
             }
+
+            .section {
+                padding: 60px 0;
+            }
+
+            .section-container {
+                padding: 0 1rem;
+            }
+
+            .feature-card {
+                padding: 1.5rem;
+            }
+
+            .faq-item {
+                padding: 1.25rem;
+            }
+
+            .cta-section {
+                padding: 60px 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero {
+                padding: 110px 0 50px;
+            }
+
+            .hero-container {
+                padding: 0 1rem;
+            }
+
+            .hero-title {
+                font-size: 1.875rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
         }
 
         /* Smooth scroll offset for fixed nav */
@@ -662,8 +878,30 @@
                 <a href="/app/" class="btn-login">Log In</a>
                 <a href="/app/" class="btn-cta">Get Started Free</a>
             </div>
+            <!-- Hamburger Menu Button -->
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
     </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-links">
+            <a href="#features" class="mobile-menu-link">Features</a>
+            <a href="#how-it-works" class="mobile-menu-link">How It Works</a>
+            <a href="#faq" class="mobile-menu-link">FAQ</a>
+        </div>
+        <div class="mobile-menu-cta">
+            <a href="/app/" class="btn-login-mobile">Log In</a>
+            <a href="/app/" class="btn-cta-mobile">Get Started Free</a>
+        </div>
+    </div>
 
     <!-- Hero Section -->
     <section class="hero">
@@ -842,11 +1080,6 @@
             <h2>Ready to Land Your Dream Job?</h2>
             <p>Join thousands of job seekers using AI to optimize their applications</p>
             <a href="/app/" class="btn-primary-large">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="17,8 12,3 7,8"/>
-                    <line x1="12" y1="3" x2="12" y2="15"/>
-                </svg>
                 Start Analyzing Free
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
                     <path d="M5 12h14M12 5l7 7-7 7"/>
@@ -905,6 +1138,40 @@
                     target.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             });
+        });
+
+        // Mobile Menu Toggle
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+
+        function toggleMobileMenu() {
+            hamburgerBtn.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+            mobileMenuOverlay.classList.toggle('active');
+            document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+        }
+
+        function closeMobileMenu() {
+            hamburgerBtn.classList.remove('active');
+            mobileMenu.classList.remove('active');
+            mobileMenuOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        hamburgerBtn.addEventListener('click', toggleMobileMenu);
+        mobileMenuOverlay.addEventListener('click', closeMobileMenu);
+
+        // Close menu when clicking on a link
+        document.querySelectorAll('.mobile-menu-link').forEach(link => {
+            link.addEventListener('click', closeMobileMenu);
+        });
+
+        // Close menu on window resize if open
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                closeMobileMenu();
+            }
         });
     </script>
 </body>

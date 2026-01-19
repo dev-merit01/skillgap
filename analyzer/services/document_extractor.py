@@ -1,7 +1,7 @@
 """
 Document Text Extractor Service
 Extracts text from PDF, DOCX, and image files in memory.
-Uses OpenAI Vision API for image text extraction.
+Uses OpenAI Vision API or Tesseract OCR for image text extraction.
 Implements clean separation of concerns with clear error handling.
 """
 import io
@@ -13,6 +13,13 @@ import pdfplumber
 from docx import Document
 import openai
 from django.conf import settings
+
+# Try to import pytesseract for local OCR fallback
+try:
+    import pytesseract
+    TESSERACT_AVAILABLE = True
+except ImportError:
+    TESSERACT_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -222,43 +229,55 @@ class DOCXExtractor:
 
 class ImageOCRExtractor:
     """
-    Extracts text from images using OpenAI Vision API.
+    Extracts text from images using OpenAI Vision API (primary) and Tesseract OCR (fallback).
     Processes entirely in memory.
+    
+    OpenAI is preferred for its accuracy with resume images, handwritten text, and scanned documents.
+    Tesseract is available as an offline fallback if OpenAI API is not configured.
     """
     
-    # Prompt for text extraction
-    EXTRACTION_PROMPT = """Extract ALL text from this image exactly as it appears. 
-This is a job description or job posting. 
-Preserve the original formatting, including:
-- Headings and section titles
-- Bullet points and numbered lists
-- Paragraph breaks
+    # Prompts for text extraction optimized for resume/JD analysis
+    RESUME_EXTRACTION_PROMPT = """CRITICAL: Extract EVERY character visible in this resume image.
+1. Extract all text: headings, names, dates, numbers, symbols
+2. Include: EXPERIENCE, EDUCATION, SKILLS, CERTIFICATIONS sections
+3. Include: job titles, companies, dates, achievements with metrics
+4. Include: education details, schools, degrees, GPA
+5. Include: all skills and certifications
+6. Extract even faint or hard-to-read text
+7. Preserve formatting: bullets, indentation, line breaks
+8. Output ONLY raw text - no summaries or reorganization"""
 
-Output ONLY the extracted text, nothing else. Do not add any commentary or explanation."""
+    JOB_DESCRIPTION_EXTRACTION_PROMPT = """CRITICAL: Extract EVERY character visible in this job description image.
+1. Extract all text: title, company, requirements, responsibilities
+2. Include: all section headings (Requirements, Responsibilities, Benefits, Qualifications)
+3. Include: every requirement and qualification
+4. Include: all duties and responsibilities
+5. Include: salary, benefits, location, work type info
+6. Include: application instructions or contact info
+7. Extract even faint or hard-to-read text
+8. Preserve formatting: bullets, numbering, indentation, line breaks
+9. Output ONLY raw text - no summaries or reorganization"""
 
     @classmethod
-    def extract(cls, file_content: bytes) -> str:
+    def extract(cls, file_content: bytes, document_type: str = "jd") -> str:
         """
-        Extract text from image bytes using OpenAI Vision API.
+        Extract text from image bytes.
+        Tries multiple methods in order:
+        1. OpenAI Vision API (primary - cloud-based, most accurate for resumes)
+        2. Tesseract OCR (fallback - local, free)
         
         Args:
             file_content: Raw image file bytes
+            document_type: Type of document - 'resume' or 'jd' (job description). Defaults to 'jd'.
             
         Returns:
             Extracted text content
             
         Raises:
-            ExtractionFailedError: If extraction fails
+            ExtractionFailedError: If extraction fails with all methods
         """
-        # Check OpenAI API key is configured
-        if not settings.OPENAI_API_KEY:
-            raise ExtractionFailedError(
-                "Image text extraction is not configured. "
-                "Please paste the job description text manually, or upload a PDF/DOCX file."
-            )
-        
         try:
-            # Validate and process the image
+            # Validate and load the image
             image_file = io.BytesIO(file_content)
             image = Image.open(image_file)
             image.load()
@@ -276,16 +295,119 @@ Output ONLY the extracted text, nothing else. Do not add any commentary or expla
             elif image.mode != 'RGB':
                 image = image.convert('RGB')
             
-            # Resize if too large (OpenAI has limits, and smaller = faster/cheaper)
+        except UnidentifiedImageError:
+            raise ExtractionFailedError(
+                "Could not read this image file. It may be corrupted or in an unsupported format. "
+                "Please upload a PNG/JPG/JPEG image."
+            )
+        except Exception as e:
+            logger.error(f"Image loading error: {e}")
+            raise ExtractionFailedError("Failed to read image file. Please ensure it's a valid image.")
+
+        # Basic preprocessing to improve OCR reliability: autocontrast, contrast boost, sharpen
+        try:
+            processed_image = image.copy()
+            from PIL import ImageEnhance, ImageFilter, ImageOps
+
+            # Autocontrast to improve overall contrast
+            processed_image = ImageOps.autocontrast(processed_image)
+
+            # Increase contrast moderately
+            enhancer = ImageEnhance.Contrast(processed_image)
+            processed_image = enhancer.enhance(1.5)
+
+            # Slight sharpening
+            processed_image = processed_image.filter(ImageFilter.SHARPEN)
+        except Exception:
+            # If preprocessing fails, fall back to original image
+            processed_image = image
+
+        # Try Method 1: OpenAI Vision API (primary - cloud-based, most accurate)
+        if settings.OPENAI_API_KEY:
+            try:
+                logger.info(f"Attempting image text extraction using OpenAI Vision API (document_type={document_type})")
+                return cls._extract_with_openai(processed_image, document_type)
+            except ExtractionFailedError:
+                raise
+            except Exception as e:
+                logger.warning(f"OpenAI Vision extraction failed: {e}")
+        else:
+            logger.info("OpenAI API key not configured, attempting fallback methods")
+        
+        # Try Method 2: Tesseract OCR (fallback - local, free)
+        if TESSERACT_AVAILABLE:
+            try:
+                logger.info("Attempting image text extraction using Tesseract OCR (fallback)")
+                extracted_text = pytesseract.image_to_string(image).strip()
+                
+                if extracted_text:
+                    logger.info(f"Successfully extracted {len(extracted_text)} chars from image via Tesseract")
+                    return extracted_text
+                else:
+                    logger.info("Tesseract OCR returned empty text")
+            except Exception as e:
+                logger.warning(f"Tesseract OCR failed: {e}")
+        else:
+            logger.info("Tesseract OCR not available")
+        
+        # All methods failed - provide helpful error message
+        error_msg = "Could not extract text from this image. "
+        
+        if not settings.OPENAI_API_KEY and not TESSERACT_AVAILABLE:
+            error_msg += (
+                "No OCR methods are configured. "
+                "Please either: "
+                "1) Set up OpenAI API key (see OPENAI_SETUP.md) - RECOMMENDED, or "
+                "2) Install Tesseract OCR locally, or "
+                "3) Paste the text manually."
+            )
+        elif not settings.OPENAI_API_KEY:
+            error_msg += (
+                "OpenAI API is not configured, and Tesseract extraction failed. "
+                "Please set up OpenAI API (recommended), try a clearer image, or paste the text manually."
+            )
+        elif not TESSERACT_AVAILABLE:
+            error_msg += (
+                "OpenAI extraction failed, and Tesseract OCR is not available. "
+                "Please try a clearer image, install Tesseract OCR, or paste the text manually."
+            )
+        else:
+            error_msg += (
+                "Please ensure the image contains clear, readable text, or paste the text manually."
+            )
+        
+        raise ExtractionFailedError(error_msg)
+    
+    @classmethod
+    def _extract_with_openai(cls, image: Image, document_type: str = "jd") -> str:
+        """
+        Extract text from PIL Image using OpenAI Vision API.
+        Uses resume-specific or job-description-specific prompts for better accuracy.
+        
+        Args:
+            image: PIL Image object (must be RGB)
+            document_type: 'resume' or 'jd' to select appropriate extraction prompt
+            
+        Returns:
+            Extracted text
+            
+        Raises:
+            ExtractionFailedError: If OpenAI extraction fails
+        """
+        try:
+            # Select appropriate prompt based on document type
+            prompt = cls.RESUME_EXTRACTION_PROMPT if document_type == "resume" else cls.JOB_DESCRIPTION_EXTRACTION_PROMPT
+            
+            # Resize if too large (OpenAI has limits)
             max_dimension = 2048
             if max(image.size) > max_dimension:
                 ratio = max_dimension / max(image.size)
                 new_size = (int(image.size[0] * ratio), int(image.size[1] * ratio))
                 image = image.resize(new_size, Image.Resampling.LANCZOS)
             
-            # Convert to base64
+            # Convert to base64 with high quality for better OCR
             buffer = io.BytesIO()
-            image.save(buffer, format='JPEG', quality=85)
+            image.save(buffer, format='JPEG', quality=95, optimize=False)
             base64_image = base64.b64encode(buffer.getvalue()).decode('utf-8')
             
             # Call OpenAI Vision API
@@ -302,7 +424,7 @@ Output ONLY the extracted text, nothing else. Do not add any commentary or expla
                         "content": [
                             {
                                 "type": "text",
-                                "text": cls.EXTRACTION_PROMPT
+                                "text": prompt
                             },
                             {
                                 "type": "image_url",
@@ -314,46 +436,72 @@ Output ONLY the extracted text, nothing else. Do not add any commentary or expla
                         ]
                     }
                 ],
-                max_tokens=4000,
-                temperature=0.1,
+                max_tokens=8000,
+                temperature=0.0,
             )
             
             extracted_text = response.choices[0].message.content.strip()
             
             if not extracted_text:
                 raise ExtractionFailedError(
-                    "Could not detect any text in the image. "
-                    "Please ensure the image contains readable text and try again, "
-                    "or paste the text manually."
+                    "OpenAI could not detect any text in the image. "
+                    "Please ensure the image contains readable text and try again."
                 )
             
             logger.info(f"Successfully extracted {len(extracted_text)} chars from image via OpenAI")
+            
+            # If extraction seems too short, retry with more aggressive prompting
+            if len(extracted_text) < 200:
+                logger.warning(f"Extraction too short ({len(extracted_text)} chars), retrying with aggressive extraction...")
+                try:
+                    response_retry = client.chat.completions.create(
+                        model=settings.OPENAI_MODEL,
+                        messages=[
+                            {
+                                "role": "user",
+                                "content": [
+                                    {
+                                        "type": "text",
+                                        "text": prompt + "\n\n*** IMPORTANT: Be EXTREMELY thorough. Extract EVERYTHING visible, even small text. ***"
+                                    },
+                                    {
+                                        "type": "image_url",
+                                        "image_url": {
+                                            "url": f"data:image/jpeg;base64,{base64_image}",
+                                            "detail": "high"
+                                        }
+                                    }
+                                ]
+                            }
+                        ],
+                        max_tokens=8000,
+                        temperature=0.0,
+                    )
+                    retry_text = response_retry.choices[0].message.content.strip()
+                    if len(retry_text) > len(extracted_text):
+                        logger.info(f"Retry successful: extracted {len(retry_text)} chars (improved from {len(extracted_text)})") 
+                        extracted_text = retry_text
+                except Exception as retry_err:
+                    logger.warning(f"Retry failed: {retry_err}, using original extraction")
+            
             return extracted_text
             
-        except UnidentifiedImageError:
-            raise ExtractionFailedError(
-                "Could not read this image file. It may be corrupted or in an unsupported format. "
-                "Please upload a PNG/JPG/JPEG image."
-            )
         except openai.APIError as e:
             logger.error(f"OpenAI API error during image extraction: {e}")
             raise ExtractionFailedError(
-                "Failed to process image due to an API error. Please try again later, "
-                "or paste the job description text manually."
+                "Failed to process image due to an API error. Please try again later."
             )
         except openai.AuthenticationError:
             logger.error("OpenAI authentication failed for image extraction")
             raise ExtractionFailedError(
-                "Image text extraction is not properly configured. "
-                "Please paste the job description text manually."
+                "Image text extraction is not properly configured."
             )
         except ExtractionFailedError:
             raise
         except Exception as e:
-            logger.error(f"Image extraction error: {e}", exc_info=True)
+            logger.error(f"OpenAI image extraction error: {e}", exc_info=True)
             raise ExtractionFailedError(
-                "Failed to process image. Please try a different image "
-                "or paste the job description text manually."
+                "Failed to process image. Please try a different image or paste the text manually."
             )
 
 
@@ -366,8 +514,10 @@ class DocumentTextExtractor:
         text = DocumentTextExtractor.extract(uploaded_file, filename)
     """
     
-    # Minimum characters required for a valid job description
-    MIN_TEXT_LENGTH = 300
+    # Minimum characters required for valid documents
+    # Note: Images may extract less due to OCR limitations, so use a lower threshold
+    MIN_TEXT_LENGTH = 200  # For PDFs and DOCX files
+    MIN_TEXT_LENGTH_IMAGE = 100  # Lower threshold for images due to OCR variability
     
     @classmethod
     def extract(cls, file_obj, filename: str) -> str:
@@ -400,6 +550,7 @@ class DocumentTextExtractor:
             raw_text = DOCXExtractor.extract(file_content)
         elif file_type == 'image':
             raw_text = ImageOCRExtractor.extract(file_content)
+            logger.debug(f"Image OCR returned {len(raw_text)} raw characters before sanitization")
         else:
             raise UnsupportedFileTypeError(f"Unknown file type: {file_type}")
         
@@ -407,12 +558,23 @@ class DocumentTextExtractor:
         sanitized_text = cls._sanitize_text(raw_text)
         
         # Step 6: Validate minimum length
-        if len(sanitized_text) < cls.MIN_TEXT_LENGTH:
-            raise InsufficientTextError(
-                f"Extracted text is too short ({len(sanitized_text)} characters). "
-                f"Job descriptions should be at least {cls.MIN_TEXT_LENGTH} characters. "
-                "Please upload a more complete job posting or paste the text manually."
-            )
+        file_extension = filename.lower().split('.')[-1] if '.' in filename else ''
+        is_image = file_extension in ('png', 'jpg', 'jpeg', 'gif', 'bmp')
+        min_length = cls.MIN_TEXT_LENGTH_IMAGE if is_image else cls.MIN_TEXT_LENGTH
+
+        if len(sanitized_text) < min_length:
+            if is_image:
+                # For images, allow processing but log a clear warning so analysis proceeds
+                logger.warning(
+                    f"Image text extraction returned {len(sanitized_text)} characters "
+                    f"(minimum expected: {min_length}). Analysis will proceed but may be less accurate."
+                )
+            else:
+                raise InsufficientTextError(
+                    f"Extracted text is too short ({len(sanitized_text)} characters). "
+                    f"Job descriptions should be at least {cls.MIN_TEXT_LENGTH} characters. "
+                    "Please upload a more complete job posting or paste the text manually."
+                )
         
         logger.info(f"Successfully extracted {len(sanitized_text)} characters from {filename}")
         return sanitized_text

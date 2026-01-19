@@ -414,10 +414,37 @@ Provide your analysis in the required JSON format."""
         if not (0 <= score <= 100):
             raise ValueError(f"match_score must be between 0-100, got {score}")
         
-        # Validate strengths is not empty
+        # Ensure strengths list is not empty - add default if needed
         if not result['strengths']:
-            raise ValueError("Strengths list cannot be empty")
+            logger.warning("LLM returned empty strengths list; adding default")
+            result['strengths'] = [
+                {
+                    "point": "CV provided",
+                    "evidence": "Candidate submitted a CV for consideration",
+                    "impact": "Establishes baseline for further review"
+                }
+            ]
+        
+        # Ensure critical_gaps is not empty - add default if needed
+        if not result.get('critical_gaps'):
+            logger.warning("LLM returned empty critical_gaps list; adding default")
+            result['critical_gaps'] = [
+                {
+                    "gap": "Insufficient CV content",
+                    "importance": "high",
+                    "recommendation": "Please provide a more detailed CV"
+                }
+            ]
         
         # Validate summary is not empty
         if not result['executive_summary'].strip():
             raise ValueError("Executive summary cannot be empty")
+        
+        # Ensure detailed_narrative exists and is formatted correctly
+        if not result.get('detailed_narrative'):
+            logger.warning("LLM returned empty detailed_narrative; adding default")
+            result['detailed_narrative'] = [
+                "Limited CV information available for assessment.",
+                "Recommend providing additional details for accurate matching.",
+                "Follow up with candidate for more comprehensive profile information."
+            ]

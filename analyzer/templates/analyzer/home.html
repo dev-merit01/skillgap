@@ -130,6 +130,7 @@
             max-width: 1200px;
             margin: 0 auto 40px;
             padding: 0 20px;
+            position: relative;
         }
 
         .nav-brand {
@@ -218,6 +219,216 @@
             border-color: var(--danger);
             color: var(--danger);
             background: var(--danger-light);
+        }
+
+        /* Hamburger Button for Analysis Page */
+        .app-hamburger-btn {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 44px;
+            height: 44px;
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            cursor: pointer;
+            padding: 8px;
+            transition: all 0.2s ease;
+            z-index: 1001;
+        }
+
+        .app-hamburger-btn:hover {
+            border-color: var(--primary);
+            background: var(--gray-50);
+        }
+
+        .app-hamburger-btn span {
+            display: block;
+            width: 20px;
+            height: 2px;
+            background: var(--gray-700);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+            margin: 2px 0;
+        }
+
+        .app-hamburger-btn.active span:nth-child(1) {
+            transform: rotate(45deg) translate(4px, 4px);
+        }
+
+        .app-hamburger-btn.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .app-hamburger-btn.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(4px, -4px);
+        }
+
+        /* Mobile Menu Overlay for Analysis Page */
+        .app-menu-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .app-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        /* Mobile Slide Menu for Analysis Page */
+        .app-mobile-menu {
+            display: none;
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 300px;
+            max-width: 85vw;
+            height: 100vh;
+            background: var(--white);
+            border-left: 1px solid var(--gray-200);
+            z-index: 1000;
+            padding: 24px;
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+            pointer-events: none;
+        }
+
+        .app-mobile-menu.active {
+            right: 0;
+            pointer-events: auto;
+        }
+
+        .app-menu-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .app-menu-header h3 {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .app-menu-close {
+            width: 36px;
+            height: 36px;
+            background: var(--gray-100);
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .app-menu-close:hover {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+
+        .app-menu-section {
+            margin-bottom: 24px;
+        }
+
+        .app-menu-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+        }
+
+        .app-menu-user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: var(--gray-50);
+            border-radius: var(--radius-md);
+            margin-bottom: 16px;
+        }
+
+        .app-menu-user-info .user-avatar {
+            width: 40px;
+            height: 40px;
+            font-size: 1rem;
+        }
+
+        .app-menu-user-info .user-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .app-menu-user-info .user-email-full {
+            font-size: 0.875rem;
+            color: var(--gray-700);
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .app-menu-usage {
+            padding: 16px;
+            background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
+            border-radius: var(--radius-md);
+            border: 1px solid #A7F3D0;
+        }
+
+        .app-menu-usage .usage-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .app-menu-usage .usage-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #065F46;
+        }
+
+        .app-menu-signout {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 20px;
+            background: var(--white);
+            border: 2px solid var(--danger);
+            border-radius: var(--radius-md);
+            color: var(--danger);
+            font-weight: 600;
+            font-size: 0.9375rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .app-menu-signout:hover {
+            background: var(--danger);
+            color: var(--white);
         }
 
         /* Usage Indicator */
@@ -814,6 +1025,12 @@
             color: var(--gray-500);
         }
 
+        /* Hide upload instructions when file is selected */
+        .file-upload-area.has-file .upload-text,
+        .file-upload-area.has-file .upload-hint {
+            display: none;
+        }
+
         .file-info {
             display: none;
             align-items: center;
@@ -824,19 +1041,55 @@
             background: var(--white);
             border-radius: var(--radius);
             font-size: 0.875rem;
+            flex-wrap: wrap;
         }
 
         .file-upload-area.has-file .file-info {
             display: flex;
         }
 
+        /* Uploaded file success state styling */
+        .file-upload-area.has-file .upload-icon::after {
+            content: '✓';
+            font-size: 1.5rem;
+        }
+
         .file-name {
             font-weight: 600;
             color: var(--gray-700);
+            word-break: break-all;
+            max-width: 200px;
         }
 
         .file-size {
             color: var(--gray-500);
+        }
+
+        .file-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            background: var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        .file-status.pending {
+            background: rgba(99, 102, 241, 0.12);
+            color: #4338CA;
+        }
+
+        .file-status.confirmed {
+            background: rgba(16, 185, 129, 0.14);
+            color: #065F46;
+        }
+
+        .file-status.error {
+            background: rgba(239, 68, 68, 0.12);
+            color: #B91C1C;
         }
 
         .remove-file {
@@ -854,6 +1107,20 @@
 
         .remove-file:hover {
             background: var(--danger-light);
+        }
+
+        /* Mobile file upload improvements */
+        @media (max-width: 480px) {
+            .file-info {
+                flex-direction: column;
+                gap: 8px;
+                padding: 16px;
+            }
+
+            .file-name {
+                max-width: 100%;
+                text-align: center;
+            }
         }
 
         /* Submit Button */
@@ -2130,22 +2397,34 @@
         /* Responsive Design */
         @media (max-width: 768px) {
             .navbar {
-                flex-direction: column;
-                gap: 16px;
+                flex-direction: row;
+                gap: 0;
             }
 
             .nav-user {
-                width: 100%;
-                justify-content: center;
-                flex-wrap: wrap;
+                display: none;
             }
 
-            .user-info {
-                order: 1;
+            .app-hamburger-btn {
+                display: flex;
             }
 
-            .sign-out-btn {
-                order: 2;
+            .app-menu-overlay {
+                display: block;
+                pointer-events: none;
+            }
+            
+            .app-menu-overlay.active {
+                pointer-events: auto;
+            }
+            
+            .app-mobile-menu {
+                display: block;
+                pointer-events: none;
+            }
+            
+            .app-mobile-menu.active {
+                pointer-events: auto;
             }
 
             .page-header h1 {
@@ -2189,6 +2468,98 @@
             .user-email {
                 max-width: 150px;
             }
+
+            /* Analysis Dashboard Mobile */
+            .analysis-dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .analysis-side {
+                order: -1;
+            }
+
+            .side-card {
+                position: static;
+            }
+
+            .analysis-accordion summary {
+                padding: 14px 16px;
+            }
+
+            .acc-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 0.875rem;
+            }
+
+            .acc-title h4 {
+                font-size: 0.9rem;
+            }
+
+            .acc-body {
+                padding: 0 16px 16px 16px;
+            }
+
+            .stat-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .stat-card {
+                padding: 14px;
+            }
+
+            .stat-value {
+                font-size: 1.25rem;
+            }
+
+            .analysis-hero {
+                padding: 20px;
+            }
+
+            .clean-list li {
+                padding: 12px;
+            }
+
+            .gap-item {
+                padding: 12px 12px 12px 16px;
+            }
+
+            .gap-item strong {
+                padding-right: 60px;
+                font-size: 0.875rem;
+            }
+
+            .importance-badge {
+                font-size: 0.65rem;
+                padding: 3px 8px;
+            }
+
+            .tip-item {
+                padding: 16px;
+                padding-left: 80px;
+            }
+
+            .priority-badge {
+                font-size: 0.65rem;
+            }
+
+            .interview-questions li {
+                padding: 14px 14px 14px 50px;
+                font-size: 0.875rem;
+            }
+
+            .interview-questions li::before {
+                left: 14px;
+                width: 24px;
+                height: 24px;
+                font-size: 0.7rem;
+            }
+
+            .method-tab {
+                padding: 10px 12px;
+                font-size: 0.8125rem;
+            }
         }
 
         @media (max-width: 480px) {
@@ -2196,26 +2567,69 @@
                 padding: 12px;
             }
 
+            .navbar {
+                padding: 0 12px;
+                margin-bottom: 24px;
+            }
+
+            .nav-title {
+                font-size: 1.2rem;
+            }
+
+            .page-header {
+                margin-bottom: 24px;
+            }
+
+            .page-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .page-header p {
+                font-size: 0.9375rem;
+            }
+
             .results-header {
                 padding: 18px 20px;
+            }
+
+            .results-header h3 {
+                font-size: 1.1rem;
             }
 
             .results-body {
                 padding: 16px;
             }
 
-            .score-circle {
-                width: 112px;
-                height: 112px;
+            .score-section {
+                padding: 20px;
+                gap: 20px;
             }
 
-            .score-inner {
-                width: 86px;
-                height: 86px;
+            .score-ring-container {
+                width: 130px;
+                height: 130px;
+            }
+
+            .score-ring-inner {
+                width: 95px;
+                height: 95px;
             }
 
             .score-value {
-                font-size: 2.05rem;
+                font-size: 1.75rem;
+            }
+
+            .score-label {
+                font-size: 0.65rem;
+            }
+
+            .score-status {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+            }
+
+            .score-message {
+                font-size: 0.875rem;
             }
 
             .analysis-section {
@@ -2235,8 +2649,18 @@
                 font-size: 0.75rem;
             }
 
+            .skill-group {
+                padding: 14px;
+                margin-bottom: 16px;
+            }
+
+            .skill-group h3 {
+                font-size: 0.75rem;
+                margin-bottom: 10px;
+            }
+
             .file-upload-area {
-                padding: 24px;
+                padding: 20px;
             }
 
             .upload-icon {
@@ -2247,6 +2671,85 @@
 
             .form-textarea {
                 min-height: 140px;
+            }
+
+            /* Additional mobile results improvements */
+            .new-analysis-btn {
+                width: 100%;
+                padding: 14px 24px;
+            }
+
+            .analysis-hero-title {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .analysis-hero-title h4 {
+                font-size: 1rem;
+            }
+
+            .stat-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .stat-card {
+                padding: 12px;
+            }
+
+            .stat-label {
+                font-size: 0.65rem;
+            }
+
+            .stat-value {
+                font-size: 1.1rem;
+            }
+
+            .stat-sub {
+                font-size: 0.65rem;
+                display: none;
+            }
+
+            .side-card {
+                padding: 16px;
+            }
+
+            .side-card h4 {
+                font-size: 0.8rem;
+            }
+
+            .side-card .stat-value {
+                font-size: 2rem;
+            }
+
+            .ats-bar {
+                height: 10px;
+            }
+
+            .clean-list li strong {
+                font-size: 0.875rem;
+            }
+
+            .clean-list .stat-sub {
+                display: block;
+                font-size: 0.75rem;
+            }
+
+            .gap-item strong {
+                padding-right: 50px;
+            }
+
+            .tip-item {
+                padding-left: 70px;
+            }
+
+            .prose {
+                font-size: 0.875rem;
+            }
+
+            .badge {
+                font-size: 0.65rem;
+                padding: 5px 10px;
             }
         }
     </style>
@@ -2284,7 +2787,58 @@
                     Sign Out
                 </button>
             </div>
+            <!-- Mobile Hamburger Button -->
+            <button class="app-hamburger-btn" id="appHamburgerBtn" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </nav>
+
+        <!-- Mobile Menu Overlay -->
+        <div class="app-menu-overlay" id="appMenuOverlay"></div>
+
+        <!-- Mobile Slide Menu -->
+        <div class="app-mobile-menu" id="appMobileMenu">
+            <div class="app-menu-header">
+                <h3>Menu</h3>
+                <button class="app-menu-close" id="appMenuClose" aria-label="Close menu">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18"></path>
+                        <path d="M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="app-menu-section">
+                <div class="app-menu-section-title">Account</div>
+                <div class="app-menu-user-info">
+                    <div class="user-avatar" id="mobileUserAvatar">U</div>
+                    <div class="user-details">
+                        <div class="user-email-full" id="mobileUserEmail">Loading...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="app-menu-section">
+                <div class="app-menu-section-title">Usage</div>
+                <div class="app-menu-usage">
+                    <div class="usage-label">Free Analyses</div>
+                    <div class="usage-value" id="mobileUsageValue">Loading...</div>
+                </div>
+            </div>
+
+            <div class="app-menu-section">
+                <button class="app-menu-signout" onclick="handleSignOut()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16,17 21,12 16,7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    Sign Out
+                </button>
+            </div>
+        </div>
 
         <!-- Page Header -->
         <div class="page-header">
@@ -2425,6 +2979,7 @@ Include the job title, required skills, qualifications, responsibilities, and an
                                     <div class="file-info">
                                         <span class="file-name" id="jdFileName"></span>
                                         <span class="file-size" id="jdFileSize"></span>
+                                        <span class="file-status pending" id="jdFileStatus" aria-live="polite">Pending</span>
                                         <button type="button" class="remove-file" onclick="removeJDFile(event)">
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                 <line x1="18" y1="6" x2="6" y2="18"/>
@@ -2457,6 +3012,7 @@ Include the job title, required skills, qualifications, responsibilities, and an
                                 <div class="file-info">
                                     <span class="file-name" id="fileName"></span>
                                     <span class="file-size" id="fileSize"></span>
+                                    <span class="file-status" id="cvFileStatus" aria-live="polite" style="display:none"></span>
                                     <button type="button" class="remove-file" onclick="removeFile(event)">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <line x1="18" y1="6" x2="6" y2="18"/>
@@ -2555,9 +3111,17 @@ Include the job title, required skills, qualifications, responsibilities, and an
             measurementId: "G-PY7TS2P96L"
         };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
+        // Initialize Firebase with error handling
+        let auth = null;
+        try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            auth = firebase.auth();
+            console.log('Firebase initialized successfully');
+        } catch (error) {
+            console.error('Firebase initialization error:', error);
+        }
 
         // DOM Elements
         const loadingOverlay = document.getElementById('loadingOverlay');
@@ -2584,59 +3148,118 @@ Include the job title, required skills, qualifications, responsibilities, and an
         // Firebase onAuthStateChanged fires immediately with null, then again with user if logged in
         // We need to wait a moment for Firebase to check persisted auth
         let authResolved = false;
+        let authCheckTimeout = null;
         
         // Wait for Firebase Auth to fully initialize
-        auth.onAuthStateChanged(async (user) => {
-            // Skip if we've already handled auth
-            if (authResolved) return;
-            
-            // If user is null, wait a bit for Firebase to check persistence
-            // This handles the case where onAuthStateChanged fires with null first
-            if (user === null) {
-                // Wait 1.5 seconds for Firebase to load persisted session
-                await new Promise(resolve => setTimeout(resolve, 1500));
+        if (!auth) {
+            console.error('Firebase auth not initialized. Redirecting to login.');
+            window.location.href = '/login/';
+        } else {
+            auth.onAuthStateChanged(async (user) => {
+                // Skip if we've already handled auth
+                if (authResolved) return;
                 
-                // Check auth state again
-                const currentAuthUser = auth.currentUser;
-                if (currentAuthUser) {
-                    // User was found after waiting
-                    user = currentAuthUser;
-                } else {
-                    // Still no user - redirect to login
-                    authResolved = true;
-                    window.location.href = '/login/';
+                // Clear any pending timeout
+                if (authCheckTimeout) {
+                    clearTimeout(authCheckTimeout);
+                    authCheckTimeout = null;
+                }
+                
+                console.log('Auth state changed. User:', user ? user.email : 'null');
+                
+                // If user is null, wait a bit for Firebase to check persistence
+                // This handles the case where onAuthStateChanged fires with null first
+                if (user === null) {
+                    console.log('No user initially. Waiting for persistence check...');
+                    // Wait max 2 seconds for Firebase to load persisted session
+                    authCheckTimeout = setTimeout(async () => {
+                        console.log('Timeout reached, checking current auth state');
+                        const currentAuthUser = auth.currentUser;
+                        if (currentAuthUser) {
+                            console.log('User found after timeout:', currentAuthUser.email);
+                            // User was found after waiting - let onAuthStateChanged handle it
+                            return;
+                        } else {
+                            console.log('Still no user after timeout. Redirecting to login.');
+                            if (!authResolved) {
+                                authResolved = true;
+                                window.location.href = '/login/';
+                            }
+                        }
+                    }, 2000);
                     return;
                 }
-            }
-            
-            authResolved = true;
-            
-            // Check if email is verified
-            if (!user.emailVerified) {
-                // Sign out unverified user and redirect to login
-                await auth.signOut();
-                window.location.href = '/login/?verify=1';
-                return;
-            }
-            
-            // User is authenticated and verified
-            currentUser = user;
-            try {
-                idToken = await user.getIdToken();
                 
-                // Update UI with user info
-                userEmail.textContent = user.email;
-                userAvatar.textContent = user.email.charAt(0).toUpperCase();
+                authResolved = true;
+                console.log('User authenticated:', user.email);
                 
-                // Check usage limit
-                await checkUsageLimit();
+                // Check if email is verified
+                if (!user.emailVerified) {
+                    console.log('Email not verified. Redirecting to login.');
+                    // Sign out unverified user and redirect to login
+                    await auth.signOut();
+                    window.location.href = '/login/?verify=1';
+                    return;
+                }
                 
-                // Show main content
-                loadingOverlay.classList.add('hidden');
-                pageWrapper.classList.add('visible');
-            } catch (error) {
-                console.error('Error getting token:', error);
-                window.location.href = '/login/';
+                // User is authenticated and verified
+                currentUser = user;
+                try {
+                    idToken = await user.getIdToken();
+                    console.log('ID Token obtained');
+                    
+                    // Update UI with user info
+                    userEmail.textContent = user.email;
+                    userAvatar.textContent = user.email.charAt(0).toUpperCase();
+                    
+                    // Update mobile menu user info
+                    const mobileUserEmail = document.getElementById('mobileUserEmail');
+                    const mobileUserAvatar = document.getElementById('mobileUserAvatar');
+                    if (mobileUserEmail) mobileUserEmail.textContent = user.email;
+                    if (mobileUserAvatar) mobileUserAvatar.textContent = user.email.charAt(0).toUpperCase();
+                    
+                    // Check usage limit
+                    await checkUsageLimit();
+                    
+                    // Show main content
+                    console.log('Authentication complete. Showing page.');
+                    loadingOverlay.classList.add('hidden');
+                    pageWrapper.classList.add('visible');
+                } catch (error) {
+                    console.error('Error getting token or loading page:', error);
+                    window.location.href = '/login/';
+                }
+            });
+        }
+
+        // Mobile Menu Toggle Functions
+        const appHamburgerBtn = document.getElementById('appHamburgerBtn');
+        const appMobileMenu = document.getElementById('appMobileMenu');
+        const appMenuOverlay = document.getElementById('appMenuOverlay');
+        const appMenuClose = document.getElementById('appMenuClose');
+
+        function toggleAppMobileMenu() {
+            appHamburgerBtn.classList.toggle('active');
+            appMobileMenu.classList.toggle('active');
+            appMenuOverlay.classList.toggle('active');
+            document.body.style.overflow = appMobileMenu.classList.contains('active') ? 'hidden' : '';
+        }
+
+        function closeAppMobileMenu() {
+            appHamburgerBtn.classList.remove('active');
+            appMobileMenu.classList.remove('active');
+            appMenuOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        if (appHamburgerBtn) appHamburgerBtn.addEventListener('click', toggleAppMobileMenu);
+        if (appMenuOverlay) appMenuOverlay.addEventListener('click', closeAppMobileMenu);
+        if (appMenuClose) appMenuClose.addEventListener('click', closeAppMobileMenu);
+
+        // Close menu on window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                closeAppMobileMenu();
             }
         });
 
@@ -2720,11 +3343,19 @@ Include the job title, required skills, qualifications, responsibilities, and an
         // Update usage display in the UI
         function updateUsageDisplay() {
             const usageIndicator = document.getElementById('usageIndicator');
-            if (!usageIndicator) return;
-
+            const mobileUsageValue = document.getElementById('mobileUsageValue');
+            
             const remaining = userUsage.remaining;
             const badgeClass = remaining === 0 ? 'exhausted' : (remaining === 1 ? 'low' : '');
-            usageIndicator.innerHTML = `<span class="usage-badge ${badgeClass}">${remaining} analyses remaining</span>`;
+            
+            if (usageIndicator) {
+                usageIndicator.innerHTML = `<span class="usage-badge ${badgeClass}">${remaining} analyses remaining</span>`;
+            }
+            
+            // Update mobile menu usage
+            if (mobileUsageValue) {
+                mobileUsageValue.textContent = `${remaining} remaining`;
+            }
         }
 
         function showLimitModal(message) {
@@ -2844,10 +3475,13 @@ Include the job title, required skills, qualifications, responsibilities, and an
         });
 
         async function handleJDFile(file) {
-            const allowedTypes = ['.pdf', '.docx', '.doc', '.png', '.jpg', '.jpeg'];
+            // Build allowed types from server-provided config
+            const serverAllowed = ("{{ allowed_extensions }}" || '').split(',').map(s => s.trim()).filter(Boolean);
+
             const fileExt = '.' + file.name.split('.').pop().toLowerCase();
             
-            if (!allowedTypes.includes(fileExt)) {
+            // Check if file is in server-allowed list
+            if (!serverAllowed.includes(fileExt)) {
                 showError('Please upload a PDF, DOCX, or image file (PNG, JPG, JPEG).');
                 return;
             }
@@ -2859,8 +3493,17 @@ Include the job title, required skills, qualifications, responsibilities, and an
             }
             
             // Update UI
-            document.getElementById('jdFileName').textContent = file.name;
-            document.getElementById('jdFileSize').textContent = formatFileSize(file.size);
+            const jdFileNameEl = document.getElementById('jdFileName');
+            const jdFileSizeEl = document.getElementById('jdFileSize');
+            const jdFileStatusEl = document.getElementById('jdFileStatus');
+
+            if (jdFileNameEl) jdFileNameEl.textContent = file.name;
+            if (jdFileSizeEl) jdFileSizeEl.textContent = formatFileSize(file.size);
+            if (jdFileStatusEl) {
+                jdFileStatusEl.textContent = 'Pending';
+                jdFileStatusEl.classList.remove('confirmed', 'error');
+                jdFileStatusEl.classList.add('pending');
+            }
             jdUploadArea.classList.add('has-file');
 
             // Store selected file
@@ -2878,6 +3521,13 @@ Include the job title, required skills, qualifications, responsibilities, and an
             
             // Clear extracted text
             document.getElementById('extractedText').value = '';
+
+            const jdFileStatusEl = document.getElementById('jdFileStatus');
+            if (jdFileStatusEl) {
+                jdFileStatusEl.textContent = 'Pending';
+                jdFileStatusEl.classList.remove('confirmed', 'error');
+                jdFileStatusEl.classList.add('pending');
+            }
         }
 
         // Extract text from uploaded JD file (called automatically)
@@ -2885,58 +3535,145 @@ Include the job title, required skills, qualifications, responsibilities, and an
             if (!jdSelectedFile) {
                 return;
             }
+
+            // Check if user is authenticated before proceeding
+            if (!currentUser) {
+                showError('Please sign in to upload job description files.');
+                // Reset file state
+                jdFileInput.value = '';
+                jdSelectedFile = null;
+                jdUploadArea.classList.remove('has-file');
+                return;
+            }
             
             // Show loading modal
             showLoadingModal('Extracting Text', 'Reading your job description file...');
-            
-            // Simulate progress for extraction
-            let progress = 0;
+
+            const jdFileStatusEl = document.getElementById('jdFileStatus');
+            if (jdFileStatusEl) {
+                jdFileStatusEl.textContent = 'Extracting…';
+                jdFileStatusEl.classList.remove('confirmed', 'error');
+                jdFileStatusEl.classList.add('pending');
+            }
+
+            // Simulate progress for extraction (keeps moving, caps at 95 until server responds)
+            let progress = 6;
+            updateLoadingProgress(progress, 'Extracting text from document...');
             const progressInterval = setInterval(() => {
-                progress += Math.random() * 15;
-                if (progress > 85) progress = 85;
-                updateLoadingProgress(progress, 'Extracting text from document...');
-            }, 300);
+                const delta = Math.max(1.5, (100 - progress) * 0.06);
+                progress = Math.min(95, progress + delta);
+                updateLoadingProgress(progress, progress < 70 ? 'Extracting text from document...' : 'Almost there…');
+            }, 350);
             
             try {
-                // Refresh token
-                idToken = await currentUser.getIdToken(true);
+                // Token strategy:
+                // 1) Try a normal token (fast, uses cache)
+                // 2) If the server says 401/403, force refresh and retry once
+                idToken = await currentUser.getIdToken();
                 
                 const formData = new FormData();
                 formData.append('jd_file', jdSelectedFile);
+
+                // Abort if the server takes too long
+                const controller = new AbortController();
+                const timeoutMs = 45000;
+                const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
                 
-                const response = await fetch('/extract-jd/', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${idToken}`
-                    },
-                    body: formData
-                });
+                const doRequest = async (token) => {
+                    return fetch('/extract-jd/', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: formData,
+                        signal: controller.signal
+                    });
+                };
+
+                let response = await doRequest(idToken);
+
+                // Retry once with a forced-refresh token if unauthorized
+                if (response.status === 401 || response.status === 403) {
+                    idToken = await currentUser.getIdToken(true);
+                    response = await doRequest(idToken);
+                }
+
+                clearTimeout(timeoutId);
                 
                 clearInterval(progressInterval);
                 
-                const data = await response.json();
+                // Some failures (proxy errors, misconfig, HTML login pages) may return non-JSON.
+                // Handle that gracefully so we can show a meaningful error.
+                const contentType = response.headers.get('content-type') || '';
+                let data = null;
+                if (contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    const text = await response.text();
+                    console.warn('Unexpected extract-jd response:', {
+                        status: response.status,
+                        contentType,
+                        preview: (text || '').slice(0, 200)
+                    });
+                    if (response.status === 401 || response.status === 403) {
+                        throw new Error('Session expired. Please sign in again.');
+                    }
+                    throw new Error('Server returned an unexpected response while reading the job description. Please try again.');
+                }
                 
                 if (!response.ok) {
-                    throw new Error(data.error || 'Failed to extract text from file.');
+                    // Prefer the server-provided JSON error so we can diagnose the real issue
+                    if (data?.error) {
+                        throw new Error(data.error);
+                    }
+                    if (response.status === 401 || response.status === 403) {
+                        throw new Error('Session expired. Please sign in again.');
+                    }
+                    throw new Error('Failed to extract text from file.');
                 }
                 
                 // Store extracted text
                 document.getElementById('extractedText').value = data.extracted_text;
                 
                 // Show completion
-                updateLoadingProgress(100, 'Text extracted successfully!');
-                showLoadingComplete(`Extracted ${data.char_count} characters`);
+                updateLoadingProgress(100, 'Confirmed');
+                showLoadingComplete(`Confirmed • Extracted ${data.char_count ?? (data.extracted_text ? data.extracted_text.length : 0)} characters`);
+
+                if (jdFileStatusEl) {
+                    jdFileStatusEl.textContent = 'Confirmed';
+                    jdFileStatusEl.classList.remove('pending', 'error');
+                    jdFileStatusEl.classList.add('confirmed');
+                }
                 
             } catch (error) {
                 clearInterval(progressInterval);
                 hideLoadingModal();
                 console.error('Extract error:', error);
-                showError(error.message);
-                
-                // Reset file state on error
-                jdFileInput.value = '';
-                jdSelectedFile = null;
-                jdUploadArea.classList.remove('has-file');
+
+                let message;
+                if (error?.name === 'AbortError') {
+                    message = 'Job description processing timed out. Please try again (or upload a smaller file).';
+                } else if (error?.message?.includes('getIdToken') || error?.message?.includes('null')) {
+                    message = 'Session expired. Please refresh the page and try again.';
+                } else if (error?.message?.includes('NetworkError') || error?.message?.includes('Failed to fetch')) {
+                    message = 'Network error. Please check your connection and try again.';
+                } else {
+                    message = error?.message || 'Failed to extract text from file. Please try again.';
+                }
+                showError(message);
+
+                const jdFileStatusEl = document.getElementById('jdFileStatus');
+                if (jdFileStatusEl) {
+                    jdFileStatusEl.textContent = 'Failed';
+                    jdFileStatusEl.classList.remove('pending', 'confirmed');
+                    jdFileStatusEl.classList.add('error');
+                }
+
+                // Clear extracted text on error, but keep the selected file UI so the user can retry/remove.
+                const extractedTextEl = document.getElementById('extractedText');
+                if (extractedTextEl) extractedTextEl.value = '';
+
+                // Don't auto-redirect here; let the user read the error and decide.
             }
         }
 
@@ -2999,6 +3736,26 @@ Include the job title, required skills, qualifications, responsibilities, and an
             document.getElementById('fileName').textContent = file.name;
             document.getElementById('fileSize').textContent = formatFileSize(file.size);
             uploadArea.classList.add('has-file');
+
+            // Show the big loading ring briefly so users get feedback on mobile
+            const cvStatusEl = document.getElementById('cvFileStatus');
+            if (cvStatusEl) {
+                cvStatusEl.style.display = 'inline-flex';
+                cvStatusEl.textContent = 'Confirmed';
+                cvStatusEl.classList.remove('pending', 'error');
+                cvStatusEl.classList.add('confirmed');
+            }
+
+            showLoadingModal('Uploading CV', 'Preparing your resume…');
+            let p = 0;
+            const ringTimer = setInterval(() => {
+                p = Math.min(100, p + 14);
+                updateLoadingProgress(p, p < 100 ? 'Preparing your resume…' : 'Confirmed');
+                if (p >= 100) {
+                    clearInterval(ringTimer);
+                    showLoadingComplete('CV confirmed');
+                }
+            }, 120);
             
             // Update file input
             const dataTransfer = new DataTransfer();
@@ -3010,6 +3767,13 @@ Include the job title, required skills, qualifications, responsibilities, and an
             event.stopPropagation();
             cvFileInput.value = '';
             uploadArea.classList.remove('has-file');
+
+            const cvStatusEl = document.getElementById('cvFileStatus');
+            if (cvStatusEl) {
+                cvStatusEl.style.display = 'none';
+                cvStatusEl.textContent = '';
+                cvStatusEl.classList.remove('pending', 'confirmed', 'error');
+            }
         }
 
         function formatFileSize(bytes) {
@@ -3050,8 +3814,23 @@ Include the job title, required skills, qualifications, responsibilities, and an
                     showError('Please upload a job description file first.');
                     return;
                 }
-                if (jdText.length < 300) {
-                    showError('Extracted text is too short. Please upload a more complete job description.');
+
+                // Determine if the uploaded file is an image and adjust threshold
+                const jdFileNameEl = document.getElementById('jdFileName');
+                const jdFilename = jdFileNameEl ? jdFileNameEl.textContent.trim() : '';
+                let isImageFile = false;
+                if (jdFilename) {
+                    const ext = jdFilename.split('.').pop().toLowerCase();
+                    isImageFile = ['png', 'jpg', 'jpeg', 'gif', 'bmp'].includes(ext);
+                }
+
+                const minLength = isImageFile ? 100 : 300;
+                if (jdText.length < minLength) {
+                    if (isImageFile) {
+                        showError(`Extracted text is short (${jdText.length} chars) for an image. Try uploading a clearer image or paste the text manually.`);
+                    } else {
+                        showError('Extracted text is too short. Please upload a more complete job description.');
+                    }
                     return;
                 }
             }
@@ -3489,11 +4268,15 @@ Include the job title, required skills, qualifications, responsibilities, and an
             const messageText = document.getElementById('loadingMessage');
             const progressCircle = document.getElementById('progressCircle');
             const progressText = document.getElementById('progressText');
+            const checkmark = document.getElementById('loadingCheckmark');
             
             stageText.textContent = stage;
             messageText.textContent = message;
             progressText.textContent = '0%';
             progressCircle.style.strokeDashoffset = 283; // Full circle
+
+            // Ensure checkmark is reset between runs
+            if (checkmark) checkmark.style.display = 'none';
             
             modal.classList.add('visible');
         }

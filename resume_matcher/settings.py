@@ -139,6 +139,10 @@ FIREBASE_CREDENTIALS_PATH = config('FIREBASE_CREDENTIALS_PATH', default=None)
 FIREBASE_PROJECT_ID = config('FIREBASE_PROJECT_ID', default=None)
 FIREBASE_SERVICE_ACCOUNT_JSON = config('FIREBASE_SERVICE_ACCOUNT_JSON', default=None)
 
+# Local development convenience: allow disabling Firebase token verification.
+# IMPORTANT: Keep this disabled in production.
+FIREBASE_AUTH_DISABLED = config('FIREBASE_AUTH_DISABLED', default=DEBUG, cast=bool)
+
 # OpenAI/LLM Configuration
 OPENAI_API_KEY = config('OPENAI_API_KEY', default=None)
 OPENAI_API_BASE = config('OPENAI_API_BASE', default='https://api.openai.com/v1')
@@ -148,7 +152,7 @@ OPENAI_TEMPERATURE = config('OPENAI_TEMPERATURE', default=0.3, cast=float)
 
 # File Upload Configuration
 MAX_UPLOAD_SIZE = 2 * 1024 * 1024  # 2MB
-ALLOWED_FILE_EXTENSIONS = ['.pdf', '.docx']
+ALLOWED_FILE_EXTENSIONS = ['.pdf', '.docx', '.png', '.jpg', '.jpeg']
 
 # Rate Limiting Configuration
 RATE_LIMIT_REQUESTS = config('RATE_LIMIT_REQUESTS', default=10, cast=int)

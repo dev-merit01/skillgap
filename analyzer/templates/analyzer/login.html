@@ -521,7 +521,7 @@
 
         .top-actions {
             display: flex;
-            justify-content: flex-end;
+            justify-content: flex-start;
             margin-bottom: 18px;
         }
 
@@ -529,9 +529,9 @@
             width: 42px;
             height: 42px;
             border-radius: 999px;
-            border: 1px solid rgba(255, 255, 255, 0.14);
-            background: rgba(255, 255, 255, 0.06);
-            color: var(--gray-300);
+            border: 1px solid var(--gray-300);
+            background: var(--gray-100);
+            color: var(--gray-600);
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -541,9 +541,9 @@
 
         .back-to-landing:hover {
             transform: translateY(-1px);
-            border-color: rgba(16, 185, 129, 0.55);
+            border-color: var(--primary);
             background: rgba(16, 185, 129, 0.10);
-            color: var(--primary-light);
+            color: var(--primary);
         }
 
         .back-to-landing svg {
@@ -720,9 +720,17 @@
             measurementId: "G-PY7TS2P96L"
         };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
+        // Initialize Firebase with error handling
+        let auth = null;
+        try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            auth = firebase.auth();
+            console.log('Firebase initialized successfully');
+        } catch (error) {
+            console.error('Firebase initialization error:', error);
+        }
 
         // Persistence based on remember me
         const rememberMe = document.getElementById('remember-me');
@@ -793,6 +801,13 @@
             const password = passwordInput.value;
             const remember = rememberMe.checked;
 
+            // Check if auth is initialized
+            if (!auth) {
+                console.error('Firebase auth not initialized');
+                showError('Authentication service is not available. Please reload the page and try again.');
+                return;
+            }
+
             // Set loading state
             submitBtn.classList.add('loading');
             submitBtn.disabled = true;
@@ -803,14 +818,18 @@
                     ? firebase.auth.Auth.Persistence.LOCAL 
                     : firebase.auth.Auth.Persistence.SESSION;
                 
+                console.log('Setting persistence to:', remember ? 'LOCAL' : 'SESSION');
                 await auth.setPersistence(persistence);
 
                 // Sign in
+                console.log('Attempting to sign in with email:', email);
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 const user = userCredential.user;
+                console.log('User signed in successfully:', user.uid);
 
                 // Check if email is verified
                 if (!user.emailVerified) {
+                    console.log('Email not verified for user:', user.uid);
                     unverifiedUser = user;
                     showVerificationWarning();
                     await auth.signOut();
@@ -821,10 +840,13 @@
                 await new Promise(resolve => setTimeout(resolve, 500));
                 
                 // Redirect to home
+                console.log('Redirecting to home');
                 window.location.href = '/home/';
 
             } catch (error) {
                 console.error('Login error:', error);
+                console.error('Error code:', error.code);
+                console.error('Error message:', error.message);
                 
                 let message = 'Sign in failed. Please try again.';
                 
@@ -847,6 +869,9 @@
                     case 'auth/invalid-credential':
                         message = 'Invalid email or password. Please check and try again.';
                         break;
+                    case 'auth/network-request-failed':
+                        message = 'Network error. Please check your connection and try again.';
+                        break;
                 }
                 
                 showError(message);
@@ -858,16 +883,24 @@
 
         // Resend Verification Email
         resendBtn.addEventListener('click', async () => {
+            if (!auth) {
+                console.error('Firebase auth not initialized');
+                showError('Authentication service is not available. Please reload the page and try again.');
+                return;
+            }
+
             if (!unverifiedUser) {
                 // Need to sign in again to get user object
                 const email = document.getElementById('email').value.trim();
                 const password = passwordInput.value;
                 
                 try {
+                    console.log('Signing in to resend verification email');
                     const userCredential = await auth.signInWithEmailAndPassword(email, password);
                     unverifiedUser = userCredential.user;
                     await auth.signOut();
                 } catch (error) {
+                    console.error('Resend auth error:', error);
                     showError('Please enter your credentials again');
                     return;
                 }
@@ -881,7 +914,9 @@
                     url: window.location.origin + '/login/',
                     handleCodeInApp: false
                 };
+                console.log('Sending verification email');
                 await unverifiedUser.sendEmailVerification(actionCodeSettings);
+                console.log('Verification email sent');
                 resendBtn.textContent = 'Email sent! Check your inbox';
                 
                 setTimeout(() => {

@@ -15,4 +15,6 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('login/', views.login_view, name='login'),
     path('forgot-password/', views.forgot_password, name='forgot_password'),
+    path('debug/', views.debug_info, name='debug'),
+    path('test-openai-extraction/', views.test_openai_extraction, name='test_openai_extraction'),
 ]
